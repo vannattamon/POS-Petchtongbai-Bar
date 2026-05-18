@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ร้านของฉัน · POS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{
   --green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;
   --blue:#185FA5;--blue-light:#E6F1FB;
   --red:#E24B4A;--red-light:#FCEBEB;--red-dark:#A32D2D;
-  --amber:#FAEEDA;--amber-dark:#633806;
+  --orange:#D85A30;--orange-light:#FAECE7;
+  --purple:#534AB7;--purple-light:#EEEDFE;
   --bg:#F5F5F2;--surface:#FFFFFF;--border:#E0E0DC;--border2:#C8C8C2;
   --text:#1A1A18;--text2:#6B6B66;--text3:#9B9B96;
   --radius:10px;--radius-lg:14px;
@@ -19,172 +19,248 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);font-family:var(--font);font-size:14px;color:var(--text)}
-input,button,textarea,select{font-family:var(--font);font-size:14px}
-
+input,button,textarea{font-family:var(--font);font-size:14px}
 .app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-/* TOP BAR */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;flex-shrink:0}
-.topbar-logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;color:var(--text)}
-.topbar-logo span{color:var(--green)}
-.nav{display:flex;gap:2px}
-.ntab{padding:6px 14px;border-radius:var(--radius);border:none;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);background:transparent;transition:all .15s;display:flex;align-items:center;gap:5px}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 12px;display:flex;align-items:center;justify-content:space-between;height:52px;flex-shrink:0}
+.logo{font-size:15px;font-weight:600;white-space:nowrap}.logo span{color:var(--green)}
+.nav{display:flex;gap:2px;flex-wrap:nowrap}
+.ntab{padding:5px 10px;border-radius:var(--radius);border:none;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);background:transparent;transition:all .15s;white-space:nowrap}
 .ntab:hover{background:var(--bg);color:var(--text)}
 .ntab.on{background:var(--green-light);color:var(--green-dark);font-weight:600}
-.clock{font-family:var(--mono);font-size:12px;color:var(--text3)}
+.clock{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap}
+.pg{display:none;flex:1;overflow:hidden}.pg.on{display:flex}
 
-/* PAGES */
-.pg{display:none;flex:1;overflow:hidden}
-.pg.on{display:flex}
-
-/* ===== SALE PAGE ===== */
-.sale-l{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
-.catbar{display:flex;gap:6px;padding:10px 12px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
+/* SALE */
+.sale-l{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.catbar{display:flex;gap:6px;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
 .catbar::-webkit-scrollbar{display:none}
-.catbtn{padding:5px 14px;border-radius:999px;border:1px solid var(--border2);font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text2);white-space:nowrap;transition:all .15s;flex-shrink:0}
+.catbtn{padding:5px 12px;border-radius:999px;border:1px solid var(--border2);font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text2);white-space:nowrap;transition:all .15s;flex-shrink:0}
 .catbtn:hover{border-color:var(--green);color:var(--green)}
 .catbtn.on{background:var(--green);border-color:var(--green);color:#fff}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;padding:12px;overflow-y:auto;flex:1;align-content:start}
-.pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 8px;cursor:pointer;text-align:center;position:relative;transition:all .15s;user-select:none}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;padding:10px;overflow-y:auto;flex:1;align-content:start}
+.pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 7px 11px;cursor:pointer;text-align:center;position:relative;transition:all .15s;user-select:none}
 .pcard:hover{border-color:var(--green);box-shadow:0 2px 8px rgba(29,158,117,.12);transform:translateY(-1px)}
 .pcard:active{transform:scale(.97)}
 .pcard.promo{border-color:#FAC775;background:linear-gradient(135deg,#FFFDF7,#FFF8E8)}
-.pcard-icon{font-size:26px;margin-bottom:5px;line-height:1}
-.pcard-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px;line-height:1.3}
+.pcard-icon{font-size:24px;margin-bottom:4px;line-height:1}
+.pcard-name{font-size:11px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:2px}
 .pcard-cat{font-size:10px;color:var(--text3);margin-bottom:5px}
-.pcard-price{font-size:14px;font-weight:700;color:var(--green)}
-.promo-badge{position:absolute;top:5px;right:5px;background:#FAC775;color:var(--amber-dark);font-size:9px;padding:1px 5px;border-radius:999px;font-weight:700}
-.shot-badge{position:absolute;top:5px;left:5px;background:var(--green-light);color:var(--green-dark);font-size:9px;padding:1px 5px;border-radius:999px;font-weight:700}
+.pcard-price{font-size:16px;font-weight:700;color:var(--green);font-family:var(--mono);letter-spacing:-.5px}
+.pcard-unit{font-size:10px;color:var(--text3);margin-top:1px}
+.promo-badge{position:absolute;top:4px;right:4px;background:#FAC775;color:#412402;font-size:9px;padding:1px 5px;border-radius:999px;font-weight:700}
+.shot-badge{position:absolute;top:4px;left:4px;background:var(--green-light);color:var(--green-dark);font-size:9px;padding:1px 5px;border-radius:999px;font-weight:700}
 
 /* ORDER PANEL */
-.order-panel{width:300px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.order-hdr{padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
-.order-hdr-row{display:flex;justify-content:space-between;align-items:center}
-.order-title{font-size:14px;font-weight:600;color:var(--text)}
+.order-panel{width:295px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.order-hdr{padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.ohdr-row{display:flex;justify-content:space-between;align-items:center}
+.order-title{font-size:14px;font-weight:600}
 .bill-id{font-family:var(--mono);font-size:11px;color:var(--green);font-weight:500;background:var(--green-light);padding:2px 8px;border-radius:999px}
-.order-items{flex:1;overflow-y:auto;padding:8px}
-.empty-msg{padding:2.5rem 1rem;text-align:center;color:var(--text3);font-size:13px}
-.empty-icon{font-size:32px;margin-bottom:8px;opacity:.4;display:block}
-
-.oi{display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:var(--radius);margin-bottom:4px;background:var(--bg);border:1px solid var(--border)}
+.order-items{flex:1;overflow-y:auto;padding:6px}
+.empty-msg{padding:2rem 1rem;text-align:center;color:var(--text3);font-size:13px}
+.empty-icon{font-size:28px;margin-bottom:6px;opacity:.4;display:block}
+.oi{display:flex;align-items:flex-start;gap:7px;padding:7px;border-radius:var(--radius);margin-bottom:4px;background:var(--bg);border:1px solid var(--border)}
 .oi-info{flex:1;min-width:0}
-.oi-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.3}
+.oi-name{font-size:12px;font-weight:600;line-height:1.3}
 .oi-sub{font-size:10px;color:var(--text3);margin-top:1px}
-.oi-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.oi-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
 .oi-price{font-size:12px;font-weight:600;color:var(--text2)}
-.qty-ctrl{display:flex;align-items:center;gap:4px}
-.qbtn{width:22px;height:22px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);font-size:14px;line-height:1;cursor:pointer;color:var(--text);display:flex;align-items:center;justify-content:center;transition:all .1s}
+.qty-ctrl{display:flex;align-items:center;gap:3px;margin-top:3px}
+.qbtn{width:21px;height:21px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s}
 .qbtn:hover{border-color:var(--green);color:var(--green)}
-.qval{font-size:12px;font-weight:600;min-width:16px;text-align:center;color:var(--text)}
-
-.order-footer{padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0}
-.disc-row{display:flex;align-items:center;gap:6px;margin-bottom:10px;background:var(--bg);border-radius:var(--radius);padding:6px 10px;border:1px solid var(--border)}
-.disc-label{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px;flex:1;font-weight:500}
-.disc-input{width:70px;padding:3px 6px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;font-weight:600;text-align:right}
+.qval{font-size:12px;font-weight:600;min-width:14px;text-align:center}
+.order-footer{padding:10px 14px;border-top:1px solid var(--border);flex-shrink:0}
+.disc-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;background:var(--bg);border-radius:var(--radius);padding:5px 10px;border:1px solid var(--border)}
+.disc-label{font-size:12px;color:var(--text2);flex:1;font-weight:500}
+.disc-input{width:65px;padding:3px 6px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;font-weight:600;text-align:right}
 .disc-input:focus{outline:none;border-color:var(--green)}
 .sum-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:3px}
 .sum-disc{color:var(--red);font-weight:500}
-.sum-total{display:flex;justify-content:space-between;font-size:17px;font-weight:700;color:var(--text);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);margin-bottom:12px}
-.pay-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.pay-btn{padding:10px 8px;border-radius:var(--radius);border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
-.pay-btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
-.pay-btn.cash{background:var(--green);color:#fff}
-.pay-btn.cash:hover:not(:disabled){background:var(--green-dark)}
-.pay-btn.transfer{background:var(--blue);color:#fff}
-.pay-btn.transfer:hover:not(:disabled){background:#0D4A84}
+.sum-total{display:flex;justify-content:space-between;font-size:17px;font-weight:700;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);margin-bottom:10px}
+.pay-btns{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.pay-btn{padding:9px 6px;border-radius:var(--radius);border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:4px}
+.pay-btn:disabled{opacity:.35;cursor:not-allowed}
+.pay-btn.cash{background:var(--green);color:#fff}.pay-btn.cash:hover:not(:disabled){background:var(--green-dark)}
+.pay-btn.transfer{background:var(--blue);color:#fff}.pay-btn.transfer:hover:not(:disabled){background:#0D4A84}
 
-/* MODALS */
+/* OVERLAYS */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(2px)}
 .overlay.on{display:flex}
-.modal{background:var(--surface);border-radius:var(--radius-lg);padding:22px;width:290px;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.modal h3{font-size:15px;font-weight:700;margin-bottom:3px;color:var(--text)}
-.modal-sub{font-size:12px;color:var(--text3);margin-bottom:16px}
-.shot-ctrl{display:flex;align-items:center;gap:14px;margin-bottom:16px;background:var(--bg);border-radius:var(--radius);padding:12px}
-.shot-bigbtn{width:40px;height:40px;border-radius:50%;border:2px solid var(--border2);background:var(--surface);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);font-weight:300;transition:all .1s}
-.shot-bigbtn:hover{border-color:var(--green);color:var(--green)}
-.shot-val{font-size:28px;font-weight:700;min-width:40px;text-align:center;color:var(--text)}
-.shot-price{font-size:13px;color:var(--green);font-weight:600;margin-left:auto}
-.btn-row{display:flex;gap:8px}
-.btn-primary{flex:1;padding:10px;border-radius:var(--radius);border:none;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
+.modal{background:var(--surface);border-radius:var(--radius-lg);padding:20px;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.btn-row{display:flex;gap:8px;margin-top:14px}
+.btn-primary{flex:1;padding:10px;border-radius:var(--radius);border:none;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 .btn-primary:hover{background:var(--green-dark)}
-.btn-sec{flex:1;padding:10px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;font-size:14px;cursor:pointer;color:var(--text2);transition:all .15s}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-sec{flex:1;padding:10px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;font-size:14px;cursor:pointer;color:var(--text2)}
 .btn-sec:hover{background:var(--bg)}
 
-/* BILLS PAGE */
+/* SHOT */
+.shot-ctrl{display:flex;align-items:center;gap:12px;margin:14px 0;background:var(--bg);border-radius:var(--radius);padding:12px;border:1px solid var(--border)}
+.shot-bigbtn{width:38px;height:38px;border-radius:50%;border:2px solid var(--border2);background:var(--surface);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s}
+.shot-bigbtn:hover{border-color:var(--green);color:var(--green)}
+.shot-val{font-size:26px;font-weight:700;min-width:36px;text-align:center}
+.shot-extra{font-size:13px;color:var(--green);font-weight:600;margin-left:auto}
+
+/* CASH */
+.cash-total-box{background:var(--green-light);border:1px solid #9FE1CB;border-radius:var(--radius);padding:11px;margin-bottom:12px;text-align:center}
+.cash-total-lbl{font-size:11px;font-weight:600;color:var(--green-dark);margin-bottom:2px}
+.cash-total-amt{font-size:24px;font-weight:700;color:var(--green-dark);font-family:var(--mono)}
+.cash-disp{background:var(--bg);border:2px solid var(--green);border-radius:var(--radius);padding:9px 12px;font-size:20px;font-weight:700;font-family:var(--mono);text-align:right;color:var(--text);margin-bottom:7px;min-height:44px;letter-spacing:.5px}
+.quick-amts{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.qamt{padding:4px 9px;border-radius:999px;border:1px solid var(--border2);background:var(--surface);font-size:11px;font-weight:600;cursor:pointer;color:var(--green-dark);font-family:var(--mono);transition:all .1s;flex-shrink:0}
+.qamt:hover{background:var(--green-light);border-color:var(--green)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px}
+.nkey{padding:11px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);font-size:15px;font-weight:600;cursor:pointer;text-align:center;color:var(--text);transition:all .1s;font-family:var(--mono)}
+.nkey:hover{background:var(--bg);border-color:var(--green)}.nkey:active{transform:scale(.95)}
+.nkey.wide{grid-column:span 2}
+.nkey.del{background:var(--bg);color:var(--red)}.nkey.del:hover{background:var(--red-light)}
+.change-box{border-radius:var(--radius);padding:9px 12px;text-align:center;border:1px solid}
+.change-box.ok{background:#EAF3DE;border-color:#C0DD97}
+.change-box.short{background:var(--red-light);border-color:#F09595}
+.change-box.zero{background:var(--bg);border-color:var(--border2)}
+.change-lbl{font-size:11px;font-weight:600;margin-bottom:2px}
+.change-box.ok .change-lbl{color:#27500A}.change-box.short .change-lbl{color:var(--red-dark)}.change-box.zero .change-lbl{color:var(--text3)}
+.change-amt{font-size:19px;font-weight:700;font-family:var(--mono)}
+.change-box.ok .change-amt{color:#27500A}.change-box.short .change-amt{color:var(--red-dark)}.change-box.zero .change-amt{color:var(--text3)}
+
+/* BILLS */
 .bills-pg{flex:1;flex-direction:column;overflow:hidden}
-.bills-toolbar{padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-shrink:0}
-.search-input{flex:1;padding:7px 12px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;transition:border-color .15s}
+.bills-toolbar{padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:5px;align-items:center;flex-wrap:wrap;flex-shrink:0}
+.search-input{padding:6px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;width:120px}
 .search-input:focus{outline:none;border-color:var(--green)}
-.export-btn{padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);display:flex;align-items:center;gap:5px;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.date-input{padding:6px 7px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:12px}
+.date-input:focus{outline:none;border-color:var(--green)}
+.date-sep{font-size:11px;color:var(--text3)}
+.filter-btn{padding:6px 11px;border-radius:var(--radius);border:none;background:var(--green);color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.filter-btn:hover{background:var(--green-dark)}
+.clear-btn{padding:6px 9px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;font-size:12px;cursor:pointer;color:var(--text2)}
+.clear-btn:hover{background:var(--bg)}
+.export-btn{padding:6px 11px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all .15s;margin-left:auto}
 .export-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
-.bills-list{flex:1;overflow-y:auto;padding:12px}
-.bill-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.bills-list{flex:1;overflow-y:auto;padding:10px}
+.bill-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:11px 13px;margin-bottom:7px;cursor:pointer;transition:all .15s}
 .bill-card:hover{border-color:var(--green);box-shadow:0 2px 8px rgba(29,158,117,.1)}
 .bill-card.cancelled{border-color:#F09595;background:#FFF8F8}
-.bc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.bc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
 .bc-id{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--green)}
 .bc-id.cancelled{color:var(--red-dark)}
 .bc-time{font-size:11px;color:var(--text3)}
-.bc-items{font-size:12px;color:var(--text2);margin-bottom:6px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.bc-items{font-size:12px;color:var(--text2);margin-bottom:5px;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .bc-bot{display:flex;justify-content:space-between;align-items:center}
-.bc-total{font-size:15px;font-weight:700;color:var(--text)}
-.bc-badge{font-size:11px;padding:2px 9px;border-radius:999px;font-weight:600}
+.bc-total{font-size:14px;font-weight:700}
+.bc-badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600}
 .bc-badge.cash{background:var(--green-light);color:var(--green-dark)}
 .bc-badge.transfer{background:var(--blue-light);color:var(--blue)}
 .bc-badge.cancelled{background:var(--red-light);color:var(--red-dark)}
 
 /* BILL DETAIL */
-.bd-modal{background:var(--surface);border-radius:var(--radius-lg);padding:22px;width:340px;max-height:88vh;overflow-y:auto;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.bd-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
-.bd-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);line-height:1;padding:0;transition:color .15s}
+.bd-modal{background:var(--surface);border-radius:var(--radius-lg);padding:20px;width:330px;max-height:88vh;overflow-y:auto;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.bd-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.bd-close{background:none;border:none;font-size:19px;cursor:pointer;color:var(--text3);line-height:1;padding:0}
 .bd-close:hover{color:var(--text)}
-.bd-table{width:100%;font-size:13px;border-collapse:collapse;margin-bottom:10px}
-.bd-table tr td{padding:5px 0;color:var(--text)}
+.bd-table{width:100%;font-size:13px;border-collapse:collapse;margin-bottom:8px}
+.bd-table tr td{padding:4px 0}
 .bd-table tr td:last-child{text-align:right;font-weight:500}
 .bd-table tr:not(:last-child) td{border-bottom:1px solid var(--border)}
-.bd-sep{border-top:2px dashed var(--border);margin:10px 0}
-.bd-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px}
-.cancelled-box{background:var(--red-light);border:1px solid #F09595;border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--red-dark);margin-bottom:12px;line-height:1.6}
-.cancel-area{margin-top:12px;border-top:1px solid var(--border);padding-top:14px}
-.cancel-area label{font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px}
-.cancel-reason{width:100%;padding:8px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;margin-bottom:10px;resize:none;transition:border-color .15s}
+.bd-sep{border-top:2px dashed var(--border);margin:8px 0}
+.bd-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-bottom:8px}
+.cancelled-box{background:var(--red-light);border:1px solid #F09595;border-radius:var(--radius);padding:9px 11px;font-size:12px;color:var(--red-dark);margin-bottom:10px;line-height:1.6}
+.cancel-area{margin-top:10px;border-top:1px solid var(--border);padding-top:12px}
+.cancel-area label{font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px}
+.cancel-reason{width:100%;padding:7px 9px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;margin-bottom:8px;resize:none}
 .cancel-reason:focus{outline:none;border-color:var(--red)}
-.btn-danger{width:100%;padding:10px;border-radius:var(--radius);border:none;background:var(--red);color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s}
+.btn-danger{width:100%;padding:9px;border-radius:var(--radius);border:none;background:var(--red);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 .btn-danger:hover{background:#C43B3A}
 
-/* REPORT PAGE */
-.report-pg{flex:1;overflow-y:auto;padding:16px;flex-direction:column}
-.report-date{font-size:12px;color:var(--text3);margin-bottom:14px;font-weight:500}
-.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.mcard{background:var(--surface);border-radius:var(--radius-lg);padding:14px;border:1px solid var(--border)}
-.mlabel{font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
-.mval{font-size:22px;font-weight:700;color:var(--text)}
+/* EXPENSE PAGE */
+.expense-pg{flex:1;flex-direction:column;overflow:hidden}
+.expense-toolbar{padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-shrink:0}
+.expense-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:12px}
+.expense-form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.expense-form-title{font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text)}
+.form-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);min-width:70px}
+.form-input{flex:1;padding:7px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px}
+.form-input:focus{outline:none;border-color:var(--orange)}
+.add-expense-btn{width:100%;padding:9px;border-radius:var(--radius);border:none;background:var(--orange);color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
+.add-expense-btn:hover{background:#B5461F}
+.expense-list-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px}
+.expense-list-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px}
+.expense-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius);background:var(--orange-light);border:1px solid #F5C4B3;margin-bottom:6px}
+.ei-info{flex:1}
+.ei-desc{font-size:13px;font-weight:500;color:var(--text)}
+.ei-time{font-size:11px;color:var(--text3);margin-top:1px}
+.ei-amount{font-size:14px;font-weight:700;color:var(--orange);font-family:var(--mono);margin-right:4px}
+.ei-del{background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);padding:0;line-height:1}
+.ei-del:hover{color:var(--red)}
+.expense-total-row{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--text);padding-top:8px;border-top:1px solid var(--border);margin-top:4px}
+
+/* CLOSE DAY PAGE */
+.closeday-pg{flex:1;flex-direction:column;overflow:hidden}
+.closeday-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.cd-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.cd-title{font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text);display:flex;align-items:center;gap:6px}
+.cd-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.cd-row:last-of-type{border-bottom:none}
+.cd-label{font-size:13px;color:var(--text2)}
+.cd-value{font-size:14px;font-weight:600;font-family:var(--mono)}
+.cd-value.green{color:var(--green-dark)}
+.cd-value.red{color:var(--red-dark)}
+.cd-value.blue{color:var(--blue)}
+.cd-value.orange{color:var(--orange)}
+.cd-total-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:2px solid var(--border)}
+.cd-total-label{font-size:14px;font-weight:700;color:var(--text)}
+.cd-total-value{font-size:20px;font-weight:700;font-family:var(--mono);color:var(--green-dark)}
+.opening-input-row{display:flex;align-items:center;gap:8px}
+.opening-input{width:120px;padding:7px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:15px;font-weight:600;font-family:var(--mono);text-align:right}
+.opening-input:focus{outline:none;border-color:var(--green)}
+.set-opening-btn{padding:7px 14px;border-radius:var(--radius);border:none;background:var(--green);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.set-opening-btn:hover{background:var(--green-dark)}
+.diff-box{border-radius:var(--radius);padding:12px 14px;text-align:center;border:1px solid;margin-top:4px}
+.diff-box.match{background:#EAF3DE;border-color:#C0DD97}
+.diff-box.over{background:var(--blue-light);border-color:#B5D4F4}
+.diff-box.under{background:var(--red-light);border-color:#F09595}
+.diff-lbl{font-size:12px;font-weight:600;margin-bottom:2px}
+.diff-box.match .diff-lbl{color:#27500A}.diff-box.over .diff-lbl{color:var(--blue)}.diff-box.under .diff-lbl{color:var(--red-dark)}
+.diff-val{font-size:22px;font-weight:700;font-family:var(--mono)}
+.diff-box.match .diff-val{color:#27500A}.diff-box.over .diff-val{color:var(--blue)}.diff-box.under .diff-val{color:var(--red-dark)}
+
+/* REPORT */
+.report-pg{flex:1;overflow-y:auto;padding:14px;flex-direction:column}
+.rpt-filter-bar{display:flex;gap:6px;align-items:center;margin-bottom:12px;background:var(--surface);padding:9px 12px;border-radius:var(--radius-lg);border:1px solid var(--border);flex-wrap:wrap}
+.rpt-filter-bar label{font-size:12px;font-weight:600;color:var(--text2)}
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.mcard{background:var(--surface);border-radius:var(--radius-lg);padding:12px;border:1px solid var(--border)}
+.mlabel{font-size:10px;color:var(--text3);margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.mval{font-size:20px;font-weight:700}
 .msub{font-size:11px;color:var(--text3);margin-top:2px}
-.section-title{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
-.pay-split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
-.pscard{border-radius:var(--radius-lg);padding:14px;border:1px solid}
+.section-title{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.pay-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.pscard{border-radius:var(--radius-lg);padding:12px;border:1px solid}
 .pscard.cash{background:var(--green-light);border-color:#9FE1CB}
 .pscard.transfer{background:var(--blue-light);border-color:#B5D4F4}
-.ps-label{font-size:11px;margin-bottom:4px;font-weight:600}
-.pscard.cash .ps-label{color:var(--green-dark)}
-.pscard.transfer .ps-label{color:var(--blue)}
-.ps-val{font-size:20px;font-weight:700}
-.pscard.cash .ps-val{color:var(--green-dark)}
-.pscard.transfer .ps-val{color:var(--blue)}
+.ps-label{font-size:11px;margin-bottom:3px;font-weight:600}
+.pscard.cash .ps-label{color:var(--green-dark)}.pscard.transfer .ps-label{color:var(--blue)}
+.ps-val{font-size:18px;font-weight:700}
+.pscard.cash .ps-val{color:var(--green-dark)}.pscard.transfer .ps-val{color:var(--blue)}
 .ps-count{font-size:11px;margin-top:2px;opacity:.7}
-.pscard.cash .ps-count{color:var(--green-dark)}
-.pscard.transfer .ps-count{color:var(--blue)}
-.ti-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
-.ti-rank{font-size:11px;font-weight:700;color:var(--text3);min-width:18px}
-.ti-name{font-size:13px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar-track{width:80px;height:7px;background:var(--bg);border-radius:999px;overflow:hidden;flex-shrink:0}
-.bar-fill{height:100%;background:var(--green);border-radius:999px;transition:width .5s ease}
-.ti-cnt{font-size:11px;color:var(--text2);min-width:42px;text-align:right;font-weight:600}
-.summary-box{background:linear-gradient(135deg,var(--green-light),#d0f0e4);border:1px solid #9FE1CB;border-radius:var(--radius-lg);padding:14px 16px;margin-top:16px}
-.summary-title{font-size:13px;font-weight:700;color:var(--green-dark);margin-bottom:6px}
+.pscard.cash .ps-count{color:var(--green-dark)}.pscard.transfer .ps-count{color:var(--blue)}
+.ti-row{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.ti-rank{font-size:11px;font-weight:700;color:var(--text3);min-width:16px}
+.ti-name{font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{width:70px;height:6px;background:var(--bg);border-radius:999px;overflow:hidden;flex-shrink:0}
+.bar-fill{height:100%;background:var(--green);border-radius:999px}
+.ti-cnt{font-size:11px;color:var(--text2);min-width:40px;text-align:right;font-weight:600}
+.summary-box{background:linear-gradient(135deg,var(--green-light),#d0f0e4);border:1px solid #9FE1CB;border-radius:var(--radius-lg);padding:12px 14px;margin-top:14px}
+.summary-title{font-size:13px;font-weight:700;color:var(--green-dark);margin-bottom:5px}
 .summary-body{font-size:12px;color:var(--green-dark);line-height:1.8}
+.action-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.action-btn{flex:1;padding:8px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;white-space:nowrap;min-width:110px}
+.action-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
+.action-btn.mail{border-color:#9FE1CB;color:var(--green-dark);background:var(--green-light)}
+.action-btn.mail:hover{background:#c5eedd;border-color:var(--green)}
 
-/* SCROLLBAR */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:999px}
@@ -193,16 +269,18 @@ input,button,textarea,select{font-family:var(--font);font-size:14px}
 <body>
 <div class="app">
   <div class="topbar">
-    <div class="topbar-logo">🍺 <span>ร้านของฉัน</span> &nbsp;·&nbsp; POS</div>
+    <div class="logo">🍺 <span>ร้านของฉัน</span></div>
     <div class="nav">
       <button class="ntab on" onclick="showPg('sale',this)">🛒 ขาย</button>
       <button class="ntab" onclick="showPg('bills',this)">🧾 บิล</button>
+      <button class="ntab" onclick="showPg('expense',this)">💸 ค่าใช้จ่าย</button>
+      <button class="ntab" onclick="showPg('closeday',this)">🏁 ปิดร้าน</button>
       <button class="ntab" onclick="showPg('report',this)">📊 รายงาน</button>
     </div>
     <div class="clock" id="clock">--:--</div>
   </div>
 
-  <!-- SALE PAGE -->
+  <!-- SALE -->
   <div id="pg-sale" class="pg on" style="flex-direction:row">
     <div class="sale-l">
       <div class="catbar" id="catbar"></div>
@@ -210,13 +288,10 @@ input,button,textarea,select{font-family:var(--font);font-size:14px}
     </div>
     <div class="order-panel">
       <div class="order-hdr">
-        <div class="order-hdr-row">
-          <span class="order-title">ออเดอร์</span>
-          <span class="bill-id" id="cur-bill-id">-</span>
-        </div>
+        <div class="ohdr-row"><span class="order-title">ออเดอร์</span><span class="bill-id" id="cur-bill-id">-</span></div>
       </div>
       <div class="order-items" id="order-items">
-        <div class="empty-msg"><span class="empty-icon">🍺</span>ยังไม่มีรายการ<br>กดสินค้าเพื่อเพิ่ม</div>
+        <div class="empty-msg"><span class="empty-icon">🍺</span>ยังไม่มีรายการ</div>
       </div>
       <div class="order-footer">
         <div class="disc-row">
@@ -227,52 +302,119 @@ input,button,textarea,select{font-family:var(--font);font-size:14px}
         <div class="sum-row"><span class="sum-disc">ส่วนลด</span><span id="disc-show" class="sum-disc">-฿0</span></div>
         <div class="sum-total"><span>สุทธิ</span><span id="net-total">฿0</span></div>
         <div class="pay-btns">
-          <button class="pay-btn cash" id="pay-cash" disabled onclick="doPay('cash')">💵 เงินสด</button>
-          <button class="pay-btn transfer" id="pay-transfer" disabled onclick="doPay('transfer')">📱 โอนเงิน</button>
+          <button class="pay-btn cash" id="pay-cash" disabled onclick="openCashModal()">💵 เงินสด</button>
+          <button class="pay-btn transfer" id="pay-transfer" disabled onclick="doPay('transfer',0,0)">📱 โอนเงิน</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- BILLS PAGE -->
+  <!-- BILLS -->
   <div id="pg-bills" class="pg bills-pg">
     <div class="bills-toolbar">
-      <input class="search-input" placeholder="🔍 ค้นหารหัสบิล..." oninput="renderBills(this.value)">
-      <button class="export-btn" onclick="exportCSV()">📊 Export Excel</button>
+      <input class="search-input" placeholder="🔍 รหัสบิล..." oninput="applyBillFilter()">
+      <span class="date-sep">ตั้งแต่</span>
+      <input type="date" class="date-input" id="bill-from" onchange="applyBillFilter()">
+      <span class="date-sep">ถึง</span>
+      <input type="date" class="date-input" id="bill-to" onchange="applyBillFilter()">
+      <button class="clear-btn" onclick="clearBillFilter()">ล้าง</button>
+      <button class="export-btn" onclick="exportFiltered()">📊 Export</button>
     </div>
     <div class="bills-list" id="bills-list"></div>
   </div>
 
-  <!-- REPORT PAGE -->
+  <!-- EXPENSE -->
+  <div id="pg-expense" class="pg expense-pg">
+    <div class="expense-body">
+      <div class="expense-form-card">
+        <div class="expense-form-title">💸 บันทึกค่าใช้จ่ายหน้าร้าน</div>
+        <div class="form-row">
+          <span class="form-label">รายการ</span>
+          <input class="form-input" id="exp-desc" placeholder="เช่น ซื้อน้ำแข็ง, ค่าถุง..." maxlength="60">
+        </div>
+        <div class="form-row">
+          <span class="form-label">จำนวนเงิน</span>
+          <input class="form-input" id="exp-amount" type="number" min="1" placeholder="บาท" style="max-width:120px">
+          <span style="font-size:13px;color:var(--text2)">บาท</span>
+        </div>
+        <button class="add-expense-btn" onclick="addExpense()">+ เพิ่มรายการ</button>
+      </div>
+      <div class="expense-list-card">
+        <div class="expense-list-title">รายการค่าใช้จ่ายวันนี้</div>
+        <div id="expense-list"></div>
+        <div id="expense-total-row" class="expense-total-row" style="display:none">
+          <span>รวมค่าใช้จ่ายวันนี้</span>
+          <span id="expense-total-val" style="color:var(--orange);font-family:var(--mono)">฿0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOSE DAY -->
+  <div id="pg-closeday" class="pg closeday-pg">
+    <div class="closeday-body" id="closeday-body"></div>
+  </div>
+
+  <!-- REPORT -->
   <div id="pg-report" class="pg" style="overflow:hidden">
-    <div class="report-pg" id="report-content"></div>
+    <div class="report-pg" id="report-pg"></div>
   </div>
 </div>
 
-<!-- SHOT MODAL -->
+<!-- SHOT -->
 <div class="overlay" id="shot-overlay">
-  <div class="modal">
-    <h3 id="shot-prod-name">เหล้าปั่น</h3>
-    <div class="modal-sub">ต้องการเพิ่มช็อตเหล้าไหม? ช็อตละ ฿30</div>
+  <div class="modal" style="width:285px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:3px" id="shot-name"></div>
+    <div style="font-size:12px;color:var(--text3)">ต้องการเพิ่มช็อตเหล้าไหม? ช็อตละ ฿30</div>
     <div class="shot-ctrl">
       <button class="shot-bigbtn" onclick="adjShot(-1)">−</button>
       <span class="shot-val" id="shot-val">0</span>
       <button class="shot-bigbtn" onclick="adjShot(1)">+</button>
-      <span class="shot-price" id="shot-price-disp">฿0</span>
+      <span class="shot-extra" id="shot-extra">+฿0</span>
     </div>
-    <div class="btn-row">
-      <button class="btn-sec" onclick="closeShotModal()">ข้าม (ไม่เพิ่ม)</button>
+    <div class="btn-row" style="margin-top:0">
+      <button class="btn-sec" onclick="closeShotModal()">ข้าม</button>
       <button class="btn-primary" onclick="confirmShot()">เพิ่มลงบิล</button>
     </div>
   </div>
 </div>
 
-<!-- BILL DETAIL MODAL -->
+<!-- CASH -->
+<div class="overlay" id="cash-overlay">
+  <div class="modal" style="width:305px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:12px">💵 รับเงินสด</div>
+    <div class="cash-total-box">
+      <div class="cash-total-lbl">ยอดที่ต้องชำระ</div>
+      <div class="cash-total-amt" id="cash-net">฿0</div>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px">รับเงินมา</div>
+    <div class="cash-disp" id="cash-disp">0</div>
+    <div class="quick-amts" id="quick-amts"></div>
+    <div class="numpad">
+      <button class="nkey" onclick="nk('1')">1</button><button class="nkey" onclick="nk('2')">2</button><button class="nkey" onclick="nk('3')">3</button>
+      <button class="nkey" onclick="nk('4')">4</button><button class="nkey" onclick="nk('5')">5</button><button class="nkey" onclick="nk('6')">6</button>
+      <button class="nkey" onclick="nk('7')">7</button><button class="nkey" onclick="nk('8')">8</button><button class="nkey" onclick="nk('9')">9</button>
+      <button class="nkey wide" onclick="nk('0')">0</button><button class="nkey del" onclick="nkDel()">⌫</button>
+    </div>
+    <div class="change-box zero" id="change-box">
+      <div class="change-lbl" id="change-lbl">เงินทอน</div>
+      <div class="change-amt" id="change-amt">฿—</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-sec" onclick="closeCashModal()">ยกเลิก</button>
+      <button class="btn-primary" id="cash-confirm-btn" onclick="confirmCash()" disabled>✅ ยืนยันรับเงิน</button>
+    </div>
+  </div>
+</div>
+
+<!-- BILL DETAIL -->
 <div class="overlay" id="bd-overlay" onclick="if(event.target===this)this.classList.remove('on')">
   <div class="bd-modal" id="bd-content"></div>
 </div>
 
 <script>
+const OWNER_EMAIL='vannattamon@gmail.com';
+
 const PRODUCTS=[
   {id:1,cat:'เหล้า',name:'แกรนด์ กลม',price:325,icon:'🥃'},
   {id:2,cat:'เหล้า',name:'แสงโสม กลม',price:470,icon:'🥃'},
@@ -297,283 +439,631 @@ const PRODUCTS=[
   {id:21,cat:'เบียร์สด',name:'ทาวเวอร์',price:529,icon:'🍺'},
   {id:22,cat:'เบียร์สด',name:'เหยือก (โปร)',price:159,icon:'🍺',promo:true},
   {id:23,cat:'เบียร์สด',name:'ทาวเวอร์ (โปร)',price:469,icon:'🍺',promo:true},
-  {id:24,cat:'อื่นๆ',name:'แลกเงินเข้าห้องน้ำ',price:1,icon:'🚻'},
-  {id:25,cat:'อื่นๆ',name:'ค่าเปิดขวด',price:100,icon:'🔑'},
-  {id:26,cat:'อื่นๆ',name:'ค่าแก้ว',price:2,icon:'🥂'},
-  {id:27,cat:'อื่นๆ',name:'ทิชชู่',price:15,icon:'🧻'},
+  {id:24,cat:'น้ำเปล่า/น้ำอัดลม',name:'น้ำอัดลมกระป๋อง',price:25,icon:'🥤'},
+  {id:25,cat:'น้ำเปล่า/น้ำอัดลม',name:'น้ำอัดลมขวดเล็ก',price:25,icon:'🥤'},
+  {id:26,cat:'น้ำเปล่า/น้ำอัดลม',name:'น้ำอัดลม 1L',price:40,icon:'🥤'},
+  {id:27,cat:'น้ำเปล่า/น้ำอัดลม',name:'น้ำเปล่า 550ml',price:10,icon:'💧'},
+  {id:28,cat:'น้ำเปล่า/น้ำอัดลม',name:'น้ำเปล่า 1.5L',price:25,icon:'💧'},
+  {id:29,cat:'อื่นๆ',name:'แลกเงินเข้าห้องน้ำ',price:1,icon:'🚻'},
+  {id:30,cat:'อื่นๆ',name:'ค่าเปิดขวด',price:100,icon:'🔑'},
+  {id:31,cat:'อื่นๆ',name:'ค่าแก้ว',price:2,icon:'🥂'},
+  {id:32,cat:'อื่นๆ',name:'ทิชชู่',price:15,icon:'🧻'},
 ];
-const SHOT_PRICE=30;
+const SHOT=30;
 const CATS=['ทั้งหมด',...[...new Set(PRODUCTS.map(p=>p.cat))]];
 
-let curCat='ทั้งหมด';
-let order={};
-let bills=JSON.parse(localStorage.getItem('pos_bills_v2')||'[]');
-let billCounter=JSON.parse(localStorage.getItem('pos_counter_v2')||'{}');
-let shotTarget=null,shotQty=0;
+let order={},curCat='ทั้งหมด';
+let bills=JSON.parse(localStorage.getItem('pos_bills_v3')||'[]');
+let counter=JSON.parse(localStorage.getItem('pos_counter_v3')||'{}');
+let expenses=JSON.parse(localStorage.getItem('pos_expenses_v1')||'[]');
+let openingCash=JSON.parse(localStorage.getItem('pos_opening_v1')||'{}');
+let shotTarget=null,shotQty=0,cashStr='',netTotal=0;
+let rptFrom='',rptTo='';
 
-function save(){localStorage.setItem('pos_bills_v2',JSON.stringify(bills));localStorage.setItem('pos_counter_v2',JSON.stringify(billCounter));}
-function todayStr(){const d=new Date();return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;}
-function fmtDate(s){return `${s.slice(6,8)}/${s.slice(4,6)}/${s.slice(0,4)}`;}
-function genBillId(){const d=todayStr();billCounter[d]=(billCounter[d]||0)+1;save();return `${d}${String(billCounter[d]).padStart(3,'0')}`;}
+function save(){
+  localStorage.setItem('pos_bills_v3',JSON.stringify(bills));
+  localStorage.setItem('pos_counter_v3',JSON.stringify(counter));
+  localStorage.setItem('pos_expenses_v1',JSON.stringify(expenses));
+  localStorage.setItem('pos_opening_v1',JSON.stringify(openingCash));
+}
+function today(){const d=new Date();return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;}
+function pad(n){return String(n).padStart(2,'0');}
+function fmt(s){return `${s.slice(6,8)}/${s.slice(4,6)}/${s.slice(0,4)}`;}
+function iso2pos(s){return s.replace(/-/g,'');}
+function pos2iso(s){return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;}
+function genId(){const d=today();counter[d]=(counter[d]||0)+1;save();return `${d}${String(counter[d]).padStart(3,'0')}`;}
+function nowTime(){return new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
 
-let currentBillId=genBillId();
-document.getElementById('cur-bill-id').textContent=currentBillId;
+let curBillId=genId();
+document.getElementById('cur-bill-id').textContent=curBillId;
+setInterval(()=>{const n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});},1000);
 
-// Clock
-setInterval(()=>{
-  const n=new Date();
-  document.getElementById('clock').textContent=n.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-},1000);
-
-// Nav
 function showPg(name,btn){
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
   document.getElementById('pg-'+name).classList.add('on');
   document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  if(name==='bills')renderBills('');
-  if(name==='report')renderReport();
+  if(name==='bills')applyBillFilter();
+  if(name==='expense')renderExpenses();
+  if(name==='closeday')renderCloseDay();
+  if(name==='report'){rptFrom=rptFrom||today();rptTo=rptTo||today();renderReport();}
 }
 
-// Categories
-(function(){
-  const bar=document.getElementById('catbar');
-  bar.innerHTML=CATS.map(c=>`<button class="catbtn${c==='ทั้งหมด'?' on':''}" onclick="filterCat(this,'${c}')">${c}</button>`).join('');
-})();
-
-function filterCat(btn,cat){
-  curCat=cat;
-  document.querySelectorAll('.catbtn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  renderProducts();
-}
-
+// PRODUCTS
+document.getElementById('catbar').innerHTML=CATS.map(c=>`<button class="catbtn${c==='ทั้งหมด'?' on':''}" onclick="filterCat(this,'${c}')">${c}</button>`).join('');
+function filterCat(btn,cat){curCat=cat;document.querySelectorAll('.catbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderProducts();}
 function renderProducts(){
   const items=curCat==='ทั้งหมด'?PRODUCTS:PRODUCTS.filter(p=>p.cat===curCat);
   document.getElementById('pgrid').innerHTML=items.map(p=>`
-    <div class="pcard${p.promo?' promo':''}" onclick="clickProduct(${p.id})">
+    <div class="pcard${p.promo?' promo':''}" onclick="clickProd(${p.id})">
       ${p.promo?'<span class="promo-badge">โปร</span>':''}
       ${p.shot?'<span class="shot-badge">+ช็อต</span>':''}
       <div class="pcard-icon">${p.icon}</div>
       <div class="pcard-name">${p.name}</div>
       <div class="pcard-cat">${p.cat}</div>
-      <div class="pcard-price">฿${p.price}</div>
+      <div class="pcard-price">${p.price.toLocaleString()}</div>
+      <div class="pcard-unit">บาท</div>
     </div>`).join('');
 }
 renderProducts();
+function clickProd(id){const p=PRODUCTS.find(x=>x.id===id);if(p.shot)openShotModal(p);else addItem(p,0);}
 
-function clickProduct(id){
-  const p=PRODUCTS.find(x=>x.id===id);
-  if(p.shot){openShotModal(p);}else{addToOrder(p,0);}
-}
-
-function openShotModal(p){
-  shotTarget=p;shotQty=0;
-  document.getElementById('shot-prod-name').textContent=`${p.icon} ${p.name} — ฿${p.price}`;
-  document.getElementById('shot-val').textContent='0';
-  document.getElementById('shot-price-disp').textContent='+฿0';
-  document.getElementById('shot-overlay').classList.add('on');
-}
+// SHOT
+function openShotModal(p){shotTarget=p;shotQty=0;document.getElementById('shot-name').textContent=`${p.icon} ${p.name} — ${p.price} บาท`;document.getElementById('shot-val').textContent='0';document.getElementById('shot-extra').textContent='+฿0';document.getElementById('shot-overlay').classList.add('on');}
 function closeShotModal(){document.getElementById('shot-overlay').classList.remove('on');shotTarget=null;}
-function adjShot(d){shotQty=Math.max(0,shotQty+d);document.getElementById('shot-val').textContent=shotQty;document.getElementById('shot-price-disp').textContent='+฿'+(shotQty*SHOT_PRICE);}
-function confirmShot(){if(shotTarget)addToOrder(shotTarget,shotQty);closeShotModal();}
+function adjShot(d){shotQty=Math.max(0,shotQty+d);document.getElementById('shot-val').textContent=shotQty;document.getElementById('shot-extra').textContent='+฿'+(shotQty*SHOT);}
+function confirmShot(){if(shotTarget)addItem(shotTarget,shotQty);closeShotModal();}
 
-function addToOrder(p,shots){
-  const key=`${p.id}_${shots}`;
-  const finalPrice=p.price+(shots*SHOT_PRICE);
-  if(order[key]){order[key].qty++;}
-  else{order[key]={...p,shots,finalPrice,qty:1};}
+function addItem(p,shots){
+  const k=`${p.id}_${shots}`;
+  if(order[k])order[k].qty++;
+  else order[k]={...p,shots,fp:p.price+shots*SHOT,qty:1};
   renderOrder();
 }
-function removeOne(key){if(!order[key])return;order[key].qty--;if(order[key].qty<=0)delete order[key];renderOrder();}
-function addOne(key){order[key].qty++;renderOrder();}
+function removeOne(k){if(!order[k])return;order[k].qty--;if(!order[k].qty)delete order[k];renderOrder();}
+function addOne(k){order[k].qty++;renderOrder();}
 
 function renderOrder(){
-  const items=Object.entries(order);
   const el=document.getElementById('order-items');
-  if(!items.length){
-    el.innerHTML='<div class="empty-msg"><span class="empty-icon">🍺</span>ยังไม่มีรายการ<br>กดสินค้าเพื่อเพิ่ม</div>';
-    renderFooter();return;
-  }
+  const items=Object.entries(order);
+  if(!items.length){el.innerHTML='<div class="empty-msg"><span class="empty-icon">🍺</span>ยังไม่มีรายการ</div>';renderFooter();return;}
   el.innerHTML=items.map(([k,it])=>`
     <div class="oi">
       <div class="oi-info">
         <div class="oi-name">${it.icon} ${it.name}</div>
-        <div class="oi-sub">${it.shots>0?`+${it.shots} ช็อต (+฿${it.shots*SHOT_PRICE})`:`฿${it.price}/ชิ้น`}</div>
+        <div class="oi-sub">${it.shots>0?`+${it.shots} ช็อต (+฿${it.shots*SHOT})`:`฿${it.price}/ชิ้น`}</div>
         <div class="qty-ctrl">
           <button class="qbtn" onclick="removeOne('${k}')">−</button>
           <span class="qval">${it.qty}</span>
           <button class="qbtn" onclick="addOne('${k}')">+</button>
         </div>
       </div>
-      <div class="oi-right"><div class="oi-price">฿${it.finalPrice*it.qty}</div></div>
+      <div class="oi-right"><div class="oi-price">฿${(it.fp*it.qty).toLocaleString()}</div></div>
     </div>`).join('');
   renderFooter();
 }
 
 function renderFooter(){
   const items=Object.values(order);
-  const sub=items.reduce((s,it)=>s+it.finalPrice*it.qty,0);
+  const sub=items.reduce((s,it)=>s+it.fp*it.qty,0);
   const disc=Math.max(0,parseInt(document.getElementById('disc-input').value)||0);
-  const net=Math.max(0,sub-disc);
+  netTotal=Math.max(0,sub-disc);
   document.getElementById('subtotal').textContent='฿'+sub.toLocaleString();
   document.getElementById('disc-show').textContent='-฿'+disc.toLocaleString();
-  document.getElementById('net-total').textContent='฿'+net.toLocaleString();
+  document.getElementById('net-total').textContent='฿'+netTotal.toLocaleString();
   const has=items.length>0;
   document.getElementById('pay-cash').disabled=!has;
   document.getElementById('pay-transfer').disabled=!has;
 }
 
-function doPay(method){
-  const items=Object.values(order);
-  if(!items.length)return;
-  const sub=items.reduce((s,it)=>s+it.finalPrice*it.qty,0);
+// CASH MODAL
+function openCashModal(){
+  cashStr='';
+  document.getElementById('cash-net').textContent='฿'+netTotal.toLocaleString();
+  document.getElementById('cash-disp').textContent='0';
+  updChange();
+  const qs=[...new Set([netTotal,Math.ceil(netTotal/50)*50,Math.ceil(netTotal/100)*100,500,1000].filter(v=>v>=netTotal))].slice(0,5);
+  document.getElementById('quick-amts').innerHTML=qs.map(q=>`<button class="qamt" onclick="setQ(${q})">฿${q.toLocaleString()}</button>`).join('');
+  document.getElementById('cash-overlay').classList.add('on');
+}
+function closeCashModal(){document.getElementById('cash-overlay').classList.remove('on');cashStr='';}
+function nk(n){if(cashStr.length>=8)return;cashStr+=n;document.getElementById('cash-disp').textContent=parseInt(cashStr).toLocaleString();updChange();}
+function nkDel(){cashStr=cashStr.slice(0,-1);document.getElementById('cash-disp').textContent=cashStr?parseInt(cashStr).toLocaleString():'0';updChange();}
+function setQ(v){cashStr=String(v);document.getElementById('cash-disp').textContent=v.toLocaleString();updChange();}
+function updChange(){
+  const recv=parseInt(cashStr)||0,chg=recv-netTotal;
+  const box=document.getElementById('change-box'),lbl=document.getElementById('change-lbl'),amt=document.getElementById('change-amt'),btn=document.getElementById('cash-confirm-btn');
+  if(!cashStr||!recv){box.className='change-box zero';lbl.textContent='เงินทอน';amt.textContent='฿—';btn.disabled=true;}
+  else if(chg<0){box.className='change-box short';lbl.textContent='ขาดอีก';amt.textContent='฿'+Math.abs(chg).toLocaleString();btn.disabled=true;}
+  else if(chg===0){box.className='change-box ok';lbl.textContent='พอดีเลย 🎯';amt.textContent='฿0';btn.disabled=false;}
+  else{box.className='change-box ok';lbl.textContent='เงินทอน';amt.textContent='฿'+chg.toLocaleString();btn.disabled=false;}
+}
+function confirmCash(){const recv=parseInt(cashStr)||0,chg=recv-netTotal;closeCashModal();doPay('cash',recv,chg);}
+
+function doPay(method,recv,chg){
+  const items=Object.values(order);if(!items.length)return;
+  const sub=items.reduce((s,it)=>s+it.fp*it.qty,0);
   const disc=Math.max(0,parseInt(document.getElementById('disc-input').value)||0);
   const net=Math.max(0,sub-disc);
   const now=new Date();
-  const bill={
-    id:currentBillId,
-    time:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-    date:todayStr(),
-    items:items.map(it=>({name:it.name,icon:it.icon,qty:it.qty,unitPrice:it.finalPrice,shots:it.shots})),
-    subtotal:sub,discount:disc,total:net,method,status:'ok',cancelReason:''
-  };
+  const bill={id:curBillId,time:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),date:today(),
+    items:items.map(it=>({name:it.name,icon:it.icon,qty:it.qty,fp:it.fp,shots:it.shots})),
+    subtotal:sub,discount:disc,total:net,method,received:method==='cash'?recv:net,change:method==='cash'?chg:0,status:'ok',cancelReason:''};
   bills.unshift(bill);save();
-  order={};
-  document.getElementById('disc-input').value=0;
-  currentBillId=genBillId();
-  document.getElementById('cur-bill-id').textContent=currentBillId;
+  order={};document.getElementById('disc-input').value=0;
+  curBillId=genId();document.getElementById('cur-bill-id').textContent=curBillId;
   renderOrder();
-  alert(`✅ ชำระเงินสำเร็จ!\n\nบิล: ${bill.id}\nยอดสุทธิ: ฿${net.toLocaleString()}\nวิธีชำระ: ${method==='cash'?'เงินสด 💵':'โอนเงิน 📱'}`);
+  const msg=method==='cash'&&chg>0?`\n💰 เงินทอน: ฿${chg.toLocaleString()}`:'';
+  alert(`✅ ชำระสำเร็จ!\nบิล ${bill.id} · ฿${net.toLocaleString()}${msg}`);
 }
 
-// BILLS PAGE
-function renderBills(q){
+// BILLS
+function applyBillFilter(){
+  const q=(document.querySelector('.search-input').value||'').trim();
+  const from=document.getElementById('bill-from').value?iso2pos(document.getElementById('bill-from').value):'';
+  const to=document.getElementById('bill-to').value?iso2pos(document.getElementById('bill-to').value):'';
+  renderBillsList(bills.filter(b=>{
+    if(q&&!b.id.includes(q))return false;
+    if(from&&b.date<from)return false;
+    if(to&&b.date>to)return false;
+    return true;
+  }));
+}
+function clearBillFilter(){document.querySelector('.search-input').value='';document.getElementById('bill-from').value='';document.getElementById('bill-to').value='';renderBillsList(bills);}
+function renderBillsList(list){
   const el=document.getElementById('bills-list');
-  const filtered=bills.filter(b=>!q||b.id.includes(q.trim()));
-  if(!filtered.length){el.innerHTML='<div style="padding:3rem;text-align:center;color:var(--text3);font-size:13px">ไม่มีบิล</div>';return;}
-  el.innerHTML=filtered.map(b=>`
-    <div class="bill-card${b.status==='cancelled'?' cancelled':''}" onclick="showBillDetail('${b.id}')">
-      <div class="bc-top">
-        <span class="bc-id${b.status==='cancelled'?' cancelled':''}">${b.id}</span>
-        <span class="bc-time">${fmtDate(b.date)} ${b.time}</span>
-      </div>
+  if(!list.length){el.innerHTML='<div style="padding:3rem;text-align:center;color:var(--text3);font-size:13px">ไม่มีบิล</div>';return;}
+  el.innerHTML=list.map(b=>`
+    <div class="bill-card${b.status==='cancelled'?' cancelled':''}" onclick="showBill('${b.id}')">
+      <div class="bc-top"><span class="bc-id${b.status==='cancelled'?' cancelled':''}">${b.id}</span><span class="bc-time">${fmt(b.date)} ${b.time}</span></div>
       <div class="bc-items">${b.items.map(i=>`${i.icon}${i.name}${i.qty>1?' x'+i.qty:''}`).join(' · ')}</div>
       <div class="bc-bot">
         <span class="bc-total">฿${b.total.toLocaleString()}</span>
         <span class="bc-badge ${b.status==='cancelled'?'cancelled':b.method}">${b.status==='cancelled'?'❌ ยกเลิก':b.method==='cash'?'💵 เงินสด':'📱 โอนเงิน'}</span>
       </div>
-      ${b.status==='cancelled'&&b.cancelReason?`<div style="font-size:11px;color:var(--red-dark);margin-top:5px;padding-top:5px;border-top:1px solid #F09595">⚠️ เหตุผล: ${b.cancelReason}</div>`:''}
+      ${b.status==='cancelled'&&b.cancelReason?`<div style="font-size:11px;color:var(--red-dark);margin-top:5px;padding-top:5px;border-top:1px solid #F09595">⚠️ ${b.cancelReason}</div>`:''}
     </div>`).join('');
 }
 
-function showBillDetail(id){
+function showBill(id){
   const b=bills.find(x=>x.id===id);if(!b)return;
   const cancelled=b.status==='cancelled';
   document.getElementById('bd-content').innerHTML=`
     <div class="bd-hdr">
       <div>
         <div style="font-family:var(--mono);font-size:13px;font-weight:600;color:${cancelled?'var(--red-dark)':'var(--green)'}">${b.id}</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:2px">${fmtDate(b.date)} · ${b.time} · ${cancelled?'<span style="color:var(--red-dark);font-weight:600">ยกเลิกแล้ว</span>':(b.method==='cash'?'💵 เงินสด':'📱 โอนเงิน')}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px">${fmt(b.date)} · ${b.time} · ${cancelled?'<span style="color:var(--red-dark);font-weight:600">ยกเลิกแล้ว</span>':(b.method==='cash'?'💵 เงินสด':'📱 โอนเงิน')}</div>
       </div>
       <button class="bd-close" onclick="document.getElementById('bd-overlay').classList.remove('on')">✕</button>
     </div>
-    ${cancelled?`<div class="cancelled-box">⚠️ บิลนี้ถูกยกเลิกแล้ว<br><strong>เหตุผล:</strong> ${b.cancelReason}</div>`:''}
+    ${cancelled?`<div class="cancelled-box">⚠️ ยกเลิกแล้ว<br><strong>เหตุผล:</strong> ${b.cancelReason}</div>`:''}
     <table class="bd-table">
-      ${b.items.map(it=>`<tr><td>${it.icon} ${it.name}${it.shots>0?` (+${it.shots} ช็อต)`:''}</td><td>×${it.qty}</td><td>฿${(it.unitPrice*it.qty).toLocaleString()}</td></tr>`).join('')}
+      ${b.items.map(it=>`<tr><td>${it.icon} ${it.name}${it.shots>0?` (+${it.shots}ช็อต)`:''}</td><td>×${it.qty}</td><td>฿${(it.fp*it.qty).toLocaleString()}</td></tr>`).join('')}
     </table>
     <div class="bd-sep"></div>
     <div class="sum-row" style="margin-bottom:3px"><span style="font-size:13px;color:var(--text2)">ยอดรวม</span><span>฿${b.subtotal.toLocaleString()}</span></div>
-    ${b.discount>0?`<div class="sum-row" style="margin-bottom:3px;color:var(--red)"><span style="font-size:13px">ส่วนลด</span><span>-฿${b.discount.toLocaleString()}</span></div>`:''}
+    ${b.discount>0?`<div class="sum-row" style="margin-bottom:3px;color:var(--red)"><span>ส่วนลด</span><span>-฿${b.discount.toLocaleString()}</span></div>`:''}
     <div class="bd-total"><span>สุทธิ</span><span>฿${b.total.toLocaleString()}</span></div>
+    ${b.method==='cash'?`<div style="font-size:12px;color:var(--text2);margin-bottom:8px">รับมา ฿${b.received.toLocaleString()} · ทอน ฿${b.change.toLocaleString()}</div>`:''}
     ${!cancelled?`
     <div class="cancel-area">
       <label>ยกเลิกบิลนี้</label>
-      <textarea class="cancel-reason" id="cancel-reason-input" rows="2" placeholder="ระบุเหตุผลการยกเลิก (จำเป็น)"></textarea>
-      <button class="btn-danger" onclick="cancelBill('${b.id}')">❌ ยืนยันยกเลิกบิล</button>
+      <textarea class="cancel-reason" id="creason" rows="2" placeholder="ระบุเหตุผล (จำเป็น)"></textarea>
+      <button class="btn-danger" onclick="cancelBill('${b.id}')">❌ ยืนยันยกเลิก</button>
     </div>`:''}
   `;
   document.getElementById('bd-overlay').classList.add('on');
 }
-
 function cancelBill(id){
-  const reason=(document.getElementById('cancel-reason-input')?.value||'').trim();
-  if(!reason){alert('❗ กรุณาระบุเหตุผลการยกเลิก');return;}
+  const r=(document.getElementById('creason')?.value||'').trim();
+  if(!r){alert('กรุณาระบุเหตุผล');return;}
   const b=bills.find(x=>x.id===id);
-  if(b){b.status='cancelled';b.cancelReason=reason;}
-  save();
-  document.getElementById('bd-overlay').classList.remove('on');
-  renderBills('');
-  alert('บิล '+id+' ถูกยกเลิกแล้ว');
+  if(b){b.status='cancelled';b.cancelReason=r;}
+  save();document.getElementById('bd-overlay').classList.remove('on');applyBillFilter();
 }
 
-// REPORT
-function renderReport(){
-  const today=todayStr();
-  const todayBills=bills.filter(b=>b.date===today&&b.status==='ok');
-  const total=todayBills.reduce((s,b)=>s+b.total,0);
-  const cash=todayBills.filter(b=>b.method==='cash').reduce((s,b)=>s+b.total,0);
-  const cashCount=todayBills.filter(b=>b.method==='cash').length;
-  const transfer=todayBills.filter(b=>b.method==='transfer').reduce((s,b)=>s+b.total,0);
-  const transferCount=todayBills.filter(b=>b.method==='transfer').length;
-  const avg=todayBills.length?Math.round(total/todayBills.length):0;
-  const itemCount={};
-  todayBills.forEach(b=>b.items.forEach(it=>{itemCount[it.name]=(itemCount[it.name]||0)+it.qty;}));
-  const topItems=Object.entries(itemCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const maxCount=topItems[0]?topItems[0][1]:1;
+// EXPENSES
+function addExpense(){
+  const desc=document.getElementById('exp-desc').value.trim();
+  const amount=parseInt(document.getElementById('exp-amount').value)||0;
+  if(!desc){alert('กรุณากรอกรายการ');return;}
+  if(!amount){alert('กรุณากรอกจำนวนเงิน');return;}
+  expenses.push({id:Date.now(),date:today(),time:nowTime(),desc,amount});
+  save();
+  document.getElementById('exp-desc').value='';
+  document.getElementById('exp-amount').value='';
+  renderExpenses();
+}
+function deleteExpense(id){
+  if(!confirm('ลบรายการนี้?'))return;
+  expenses=expenses.filter(e=>e.id!==id);
+  save();renderExpenses();
+}
+function renderExpenses(){
+  const todayExp=expenses.filter(e=>e.date===today());
+  const total=todayExp.reduce((s,e)=>s+e.amount,0);
+  const el=document.getElementById('expense-list');
+  const totalRow=document.getElementById('expense-total-row');
+  if(!todayExp.length){
+    el.innerHTML='<div style="padding:1rem 0;text-align:center;color:var(--text3);font-size:13px">ยังไม่มีรายการวันนี้</div>';
+    totalRow.style.display='none';return;
+  }
+  el.innerHTML=todayExp.map(e=>`
+    <div class="expense-item">
+      <div class="ei-info">
+        <div class="ei-desc">${e.desc}</div>
+        <div class="ei-time">${e.time}</div>
+      </div>
+      <span class="ei-amount">฿${e.amount.toLocaleString()}</span>
+      <button class="ei-del" onclick="deleteExpense(${e.id})">🗑️</button>
+    </div>`).join('');
+  totalRow.style.display='flex';
+  document.getElementById('expense-total-val').textContent='฿'+total.toLocaleString();
+}
 
-  document.getElementById('report-content').innerHTML=`
-    <div class="report-date">📅 ${fmtDate(today)}</div>
-    <div class="metric-grid">
-      <div class="mcard"><div class="mlabel">ยอดขายวันนี้</div><div class="mval">฿${total.toLocaleString()}</div><div class="msub">${todayBills.length} บิล</div></div>
-      <div class="mcard"><div class="mlabel">จำนวนบิล</div><div class="mval">${todayBills.length}</div><div class="msub">บิลที่สำเร็จ</div></div>
-      <div class="mcard"><div class="mlabel">เฉลี่ยต่อบิล</div><div class="mval">฿${avg.toLocaleString()}</div><div class="msub">วันนี้</div></div>
+// STOCK ITEMS CONFIG
+const STOCK_ITEMS=[
+  {id:'singha',  name:'สิงห์',      unit:'ขวด', min:80,  perBox:12, boxUnit:'ลัง',  icon:'🍺'},
+  {id:'leo',     name:'ลีโอ',       unit:'ขวด', min:30,  perBox:12, boxUnit:'ลัง',  icon:'🍺'},
+  {id:'chang',   name:'ช้าง',       unit:'ขวด', min:30,  perBox:12, boxUnit:'ลัง',  icon:'🍺'},
+  {id:'khaohom', name:'ข้าวหอม',   unit:'ขวด', min:3,   perBox:12, boxUnit:'ลัง',  icon:'🥃'},
+  {id:'regency', name:'รีเจนซี่',  unit:'ขวด', min:1,   perBox:null,boxUnit:null,  icon:'🥃'},
+  {id:'grand',   name:'แกรนด์',    unit:'ขวด', min:2,   perBox:null,boxUnit:null,  icon:'🥃'},
+  {id:'saeng',   name:'แสงโสม',    unit:'ขวด', min:2,   perBox:null,boxUnit:null,  icon:'🥃'},
+  {id:'hong',    name:'หงษ์ทอง',  unit:'ขวด', min:2,   perBox:null,boxUnit:null,  icon:'🥃'},
+  {id:'soda',    name:'โซดา',      unit:'ขวด', min:12,  perBox:24, boxUnit:'ถาด', icon:'🥤'},
+  {id:'draft',   name:'เบียร์สด', unit:'เหยือก',min:15, perBox:30, boxUnit:'ถัง (2 ถัง)',icon:'🍻', isDraft:true},
+];
+
+// CLOSE DAY
+function renderCloseDay(){
+  const d=today();
+  const todayBills=bills.filter(b=>b.date===d&&b.status==='ok');
+  const cashSales=todayBills.filter(b=>b.method==='cash').reduce((s,b)=>s+b.total,0);
+  const xferSales=todayBills.filter(b=>b.method==='transfer').reduce((s,b)=>s+b.total,0);
+  const todayExp=expenses.filter(e=>e.date===d);
+  const totalExp=todayExp.reduce((s,e)=>s+e.amount,0);
+  const opening=openingCash[d]||0;
+  const floatRemain=opening-totalExp;
+  const totalCash=cashSales+floatRemain;
+  const savedStock=JSON.parse(localStorage.getItem('pos_stock_v1')||'{}');
+  const savedDraftDate=localStorage.getItem('pos_draft_date')||'';
+
+  // build stock rows
+  const stockRows=STOCK_ITEMS.map(item=>{
+    const qty=savedStock[item.id]||'';
+    const qtyNum=parseInt(qty)||0;
+    const isLow=qty!==''&&qtyNum<item.min;
+    const need=qty!==''&&qtyNum<item.min?item.min-qtyNum:0;
+    let orderHint='';
+    if(need>0&&item.perBox){
+      if(item.isDraft){
+        orderHint=`<span style="color:var(--red);font-size:11px;font-weight:600">⚠️ ต้องสั่ง 2 ถัง (30 เหยือก)</span>`;
+      } else {
+        const boxes=Math.ceil(need/item.perBox);
+        orderHint=`<span style="color:var(--red);font-size:11px;font-weight:600">⚠️ สั่งเพิ่ม ${boxes} ${item.boxUnit} (${boxes*item.perBox} ${item.unit})</span>`;
+      }
+    } else if(need>0&&!item.perBox){
+      orderHint=`<span style="color:var(--red);font-size:11px;font-weight:600">⚠️ สั่งเพิ่ม ${need} ${item.unit}</span>`;
+    } else if(qty!==''&&qtyNum>=item.min){
+      orderHint=`<span style="color:var(--green-dark);font-size:11px">✅ เพียงพอ</span>`;
+    }
+
+    if(item.isDraft){
+      return `<div style="padding:8px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-size:13px;flex:1;font-weight:500">${item.icon} ${item.name}</span>
+          <input type="number" min="0" value="${qty}" placeholder="0"
+            style="width:70px;padding:5px 8px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);font-size:13px;font-weight:600;font-family:var(--mono);text-align:right"
+            oninput="saveStock('${item.id}',this.value);renderCloseDay()">
+          <span style="font-size:12px;color:var(--text2);min-width:42px">${item.unit} (min ${item.min})</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-size:11px;color:var(--text2)">📅 เปิดถัง:</span>
+          <input type="date" value="${savedDraftDate}"
+            style="padding:3px 7px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);font-size:12px;color:var(--text)"
+            onchange="saveDraftDate(this.value)">
+          ${savedDraftDate?`<span style="font-size:11px;color:var(--text3)">เปิดมาแล้ว ${calcDraftDays(savedDraftDate)} วัน</span>`:''}
+        </div>
+        <div style="margin-top:3px">${orderHint}</div>
+      </div>`;
+    }
+
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:13px;flex:1;font-weight:500">${item.icon} ${item.name}</span>
+      <input type="number" min="0" value="${qty}" placeholder="0"
+        style="width:70px;padding:5px 8px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);font-size:13px;font-weight:600;font-family:var(--mono);text-align:right;${isLow?'border-color:var(--red);':''}"
+        oninput="saveStock('${item.id}',this.value);renderCloseDay()">
+      <span style="font-size:12px;color:var(--text2);min-width:42px">${item.unit} (min ${item.min})</span>
+      <span style="min-width:130px;text-align:right">${orderHint}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('closeday-body').innerHTML=`
+    <!-- Opening cash -->
+    <div class="cd-card">
+      <div class="cd-title">🌅 เงินทอนตั้งต้น (เปิดร้าน)</div>
+      <div class="opening-input-row">
+        <input class="opening-input" id="opening-input" type="number" min="0" value="${opening}" placeholder="0">
+        <span style="font-size:13px;color:var(--text2)">บาท</span>
+        <button class="set-opening-btn" onclick="setOpening()">บันทึก</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">กรอกยอดเงินสดที่เตรียมไว้สำหรับทอนตอนเปิดร้าน</div>
     </div>
-    <div class="section-title">ช่องทางการชำระเงิน</div>
-    <div class="pay-split" style="margin-bottom:18px">
-      <div class="pscard cash"><div class="ps-label">💵 เงินสด</div><div class="ps-val">฿${cash.toLocaleString()}</div><div class="ps-count">${cashCount} บิล</div></div>
-      <div class="pscard transfer"><div class="ps-label">📱 โอนเงิน</div><div class="ps-val">฿${transfer.toLocaleString()}</div><div class="ps-count">${transferCount} บิล</div></div>
+
+    <!-- Sales summary -->
+    <div class="cd-card">
+      <div class="cd-title">📊 ยอดขายวันนี้ (${fmt(d)})</div>
+      <div class="cd-row"><span class="cd-label">💵 ยอดขายเงินสด</span><span class="cd-value green">฿${cashSales.toLocaleString()}</span></div>
+      <div class="cd-row"><span class="cd-label">📱 ยอดขายโอนเงิน</span><span class="cd-value blue">฿${xferSales.toLocaleString()}</span></div>
+      <div class="cd-row"><span class="cd-label">🧾 จำนวนบิล</span><span class="cd-value">${todayBills.length} บิล</span></div>
     </div>
-    <div class="section-title">สินค้าขายดีวันนี้</div>
-    ${topItems.length?topItems.map(([name,cnt],i)=>`
-      <div class="ti-row">
-        <span class="ti-rank">${i+1}.</span>
-        <span class="ti-name">${name}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(cnt/maxCount*100)}%"></div></div>
-        <span class="ti-cnt">${cnt} ชิ้น</span>
-      </div>`).join(''):'<div style="color:var(--text3);font-size:13px;padding:1rem 0">ยังไม่มีข้อมูล</div>'}
-    <div class="summary-box">
-      <div class="summary-title">📢 สรุปยอดวันนี้ (${fmtDate(today)})</div>
-      <div class="summary-body">
-        รวมทั้งหมด: <strong>฿${total.toLocaleString()}</strong><br>
-        💵 เงินสด: ฿${cash.toLocaleString()} (${cashCount} บิล) &nbsp;|&nbsp; 📱 โอน: ฿${transfer.toLocaleString()} (${transferCount} บิล)<br>
-        จำนวนบิล: ${todayBills.length} บิล · เฉลี่ยบิลละ ฿${avg.toLocaleString()}
+
+    <!-- Expense summary -->
+    <div class="cd-card">
+      <div class="cd-title">💸 ค่าใช้จ่ายหน้าร้านวันนี้</div>
+      ${todayExp.length?todayExp.map(e=>`
+        <div class="cd-row"><span class="cd-label">${e.desc} <span style="font-size:11px;color:var(--text3)">(${e.time})</span></span><span class="cd-value orange">-฿${e.amount.toLocaleString()}</span></div>`).join('')
+        :'<div style="font-size:13px;color:var(--text3);padding:8px 0">ไม่มีค่าใช้จ่าย</div>'}
+      <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:13px;font-weight:600">
+        <span>รวมค่าใช้จ่าย</span><span style="color:var(--orange);font-family:var(--mono)">-฿${totalExp.toLocaleString()}</span>
       </div>
     </div>
-    <div style="margin-top:12px">
-      <button class="export-btn" style="width:100%;justify-content:center" onclick="exportCSV()">📊 Export Excel รายวัน (${fmtDate(today)})</button>
+
+    <!-- Cash count -->
+    <div class="cd-card">
+      <div class="cd-title">🏦 สรุปเงินสดในลิ้นชัก</div>
+      <div class="cd-row"><span class="cd-label">เงินทอนตั้งต้น</span><span class="cd-value">฿${opening.toLocaleString()}</span></div>
+      <div class="cd-row"><span class="cd-label">หักค่าใช้จ่ายหน้าร้าน</span><span class="cd-value red">-฿${totalExp.toLocaleString()}</span></div>
+      <div class="cd-row"><span class="cd-label">เงินทอนคงเหลือ</span><span class="cd-value">${floatRemain>=0?'฿'+floatRemain.toLocaleString():'<span style=\"color:var(--red)\">-฿'+Math.abs(floatRemain).toLocaleString()+'</span>'}</span></div>
+      <div class="cd-row"><span class="cd-label">+ ยอดขายเงินสด</span><span class="cd-value green">+฿${cashSales.toLocaleString()}</span></div>
+      <div class="cd-total-row">
+        <span class="cd-total-label">💵 เงินสดทั้งหมดที่ควรมี</span>
+        <span class="cd-total-value">฿${totalCash.toLocaleString()}</span>
+      </div>
+      <div style="margin-top:12px">
+        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">ยอดที่นับได้จริง</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="actual-cash-input" type="number" min="0" placeholder="กรอกยอดที่นับได้" style="flex:1;padding:7px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:14px;font-weight:600;font-family:var(--mono)" oninput="calcDiff(${totalCash})">
+          <span style="font-size:13px;color:var(--text2)">บาท</span>
+        </div>
+        <div id="diff-box" class="diff-box zero" style="margin-top:8px">
+          <div class="diff-lbl" id="diff-lbl">ผลต่าง</div>
+          <div class="diff-val" id="diff-val">฿—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STOCK COUNT -->
+    <div class="cd-card">
+      <div class="cd-title">📦 นับสต็อกคงเหลือ</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">กรอกจำนวนที่นับได้จริง ระบบจะแนะนำการสั่งซื้อให้อัตโนมัติ</div>
+      ${stockRows}
+    </div>
+
+    <div style="padding-bottom:8px">
+      <button class="add-expense-btn" style="background:var(--green)" onclick="sendCloseDayEmail(${cashSales},${xferSales},${totalExp},${opening},${floatRemain},${totalCash},'${d}')">📧 ส่งสรุปปิดร้านทางอีเมล</button>
     </div>
   `;
 }
 
-function exportCSV(){
-  const today=todayStr();
-  const todayBills=bills.filter(b=>b.date===today);
-  if(!todayBills.length){alert('ไม่มีข้อมูลวันนี้');return;}
+function saveStock(id,val){
+  const s=JSON.parse(localStorage.getItem('pos_stock_v1')||'{}');
+  s[id]=val;
+  localStorage.setItem('pos_stock_v1',JSON.stringify(s));
+}
+function saveDraftDate(val){
+  localStorage.setItem('pos_draft_date',val);
+}
+function calcDraftDays(dateStr){
+  if(!dateStr)return 0;
+  const parts=dateStr.split('-');
+  const d=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+  const now=new Date();
+  return Math.floor((now-d)/(1000*60*60*24));
+}
+
+function setOpening(){
+  const val=parseInt(document.getElementById('opening-input').value)||0;
+  openingCash[today()]=val;save();
+  renderCloseDay();
+  alert(`✅ บันทึกเงินทอนตั้งต้น ฿${val.toLocaleString()} แล้วค่ะ`);
+}
+
+function calcDiff(expected){
+  const actual=parseInt(document.getElementById('actual-cash-input').value)||0;
+  const diff=actual-expected;
+  const box=document.getElementById('diff-box'),lbl=document.getElementById('diff-lbl'),val=document.getElementById('diff-val');
+  if(!document.getElementById('actual-cash-input').value){box.className='diff-box zero';lbl.textContent='ผลต่าง';val.textContent='฿—';}
+  else if(diff===0){box.className='diff-box match';lbl.textContent='ตรงพอดี ✅';val.textContent='฿0';}
+  else if(diff>0){box.className='diff-box over';lbl.textContent='เงินเกิน';val.textContent='+฿'+diff.toLocaleString();}
+  else{box.className='diff-box under';lbl.textContent='เงินขาด';val.textContent='-฿'+Math.abs(diff).toLocaleString();}
+}
+
+function sendCloseDayEmail(cashSales,xferSales,totalExp,opening,floatRemain,totalCash,d){
+  const todayExp=expenses.filter(e=>e.date===d);
+  const expLines=todayExp.length?todayExp.map(e=>`  - ${e.desc}: ฿${e.amount.toLocaleString()}`).join('\n'):'  ไม่มีค่าใช้จ่าย';
+  const actual=parseInt(document.getElementById('actual-cash-input')?.value)||0;
+  const diff=actual?actual-totalCash:null;
+  const diffLine=diff!==null?`\nยอดนับได้จริง    : ฿${actual.toLocaleString()}\nผลต่าง           : ${diff===0?'ตรงพอดี ✅':diff>0?'+฿'+diff.toLocaleString()+' (เกิน)':'-฿'+Math.abs(diff).toLocaleString()+' (ขาด)'}`:'\n(ยังไม่ได้กรอกยอดนับจริง)';
+
+  // bill stats
+  const todayBills=bills.filter(b=>b.date===d&&b.status==='ok');
+  const totalBills=todayBills.length;
+  const cashBills=todayBills.filter(b=>b.method==='cash').length;
+  const xferBills=todayBills.filter(b=>b.method==='transfer').length;
+  const totalSales=cashSales+xferSales;
+  const avg=totalBills?Math.round(totalSales/totalBills):0;
+  const cancelledBills=bills.filter(b=>b.date===d&&b.status==='cancelled').length;
+
+  // top products
+  const icount={};
+  todayBills.forEach(b=>b.items.forEach(it=>{icount[it.name]=(icount[it.name]||0)+it.qty;}));
+  const top5=Object.entries(icount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const topLines=top5.length?top5.map(([n,c],i)=>`  ${i+1}. ${n}: ${c} ชิ้น`).join('\n'):'  ยังไม่มีข้อมูล';
+
+  // stock summary
+  const savedStock=JSON.parse(localStorage.getItem('pos_stock_v1')||'{}');
+  const savedDraftDate=localStorage.getItem('pos_draft_date')||'';
+  const stockLines=STOCK_ITEMS.map(item=>{
+    const qty=savedStock[item.id];
+    if(qty===undefined||qty==='')return `  ${item.name}: (ไม่ได้กรอก)`;
+    const qtyNum=parseInt(qty)||0;
+    const status=qtyNum>=item.min?'✅':'';
+    let orderNote='';
+    if(qtyNum<item.min){
+      const need=item.min-qtyNum;
+      if(item.isDraft) orderNote=' → สั่ง 2 ถัง (30 เหยือก)';
+      else if(item.perBox) orderNote=` → สั่ง ${Math.ceil(need/item.perBox)} ${item.boxUnit}`;
+      else orderNote=` → สั่ง ${need} ${item.unit}`;
+    }
+    const draftInfo=item.isDraft&&savedDraftDate?` (เปิดถัง: ${savedDraftDate} / ${calcDraftDays(savedDraftDate)} วันที่แล้ว)`:'';
+    return `  ${item.name}: ${qtyNum} ${item.unit}${draftInfo} [min ${item.min}] ${status}${orderNote}`;
+  }).join('\n');
+
+  const subject=`[ปิดร้าน] สรุปประจำวัน ${fmt(d)}`;
+  const body=
+`สรุปปิดร้าน · ${fmt(d)}
+${'='.repeat(32)}
+
+ยอดขายเงินสด     : ฿${cashSales.toLocaleString()}
+ยอดขายโอนเงิน    : ฿${xferSales.toLocaleString()}
+รวมยอดขาย        : ฿${totalSales.toLocaleString()}
+
+จำนวนบิลทั้งหมด  : ${totalBills} บิล
+  💵 เงินสด      : ${cashBills} บิล
+  📱 โอนเงิน     : ${xferBills} บิล
+  ❌ ยกเลิก      : ${cancelledBills} บิล
+เฉลี่ยต่อบิล      : ฿${avg.toLocaleString()}
+
+สินค้าขายดีวันนี้
+${topLines}
+
+ค่าใช้จ่ายหน้าร้าน
+${expLines}
+รวมค่าใช้จ่าย     : ฿${totalExp.toLocaleString()}
+
+สรุปเงินสดในลิ้นชัก
+เงินทอนตั้งต้น    : ฿${opening.toLocaleString()}
+หักค่าใช้จ่าย     : -฿${totalExp.toLocaleString()}
+เงินทอนคงเหลือ   : ฿${floatRemain.toLocaleString()}
++ ยอดขายเงินสด   : ฿${cashSales.toLocaleString()}
+รวมควรมีในลิ้นชัก : ฿${totalCash.toLocaleString()}
+${diffLine}
+
+สต็อกคงเหลือ & แนะนำสั่งซื้อ
+${stockLines}
+
+${'='.repeat(32)}
+ส่งจากระบบ POS ร้านของฉัน`;
+
+  window.location.href=`mailto:${OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+// REPORT
+function renderReport(){
+  const pg=document.getElementById('report-pg');
+  const from=rptFrom||today(),to=rptTo||today();
+  const data=bills.filter(b=>b.date>=from&&b.date<=to&&b.status==='ok');
+  const total=data.reduce((s,b)=>s+b.total,0);
+  const cash=data.filter(b=>b.method==='cash').reduce((s,b)=>s+b.total,0);
+  const cashN=data.filter(b=>b.method==='cash').length;
+  const xfer=data.filter(b=>b.method==='transfer').reduce((s,b)=>s+b.total,0);
+  const xferN=data.filter(b=>b.method==='transfer').length;
+  const avg=data.length?Math.round(total/data.length):0;
+  const icount={};
+  data.forEach(b=>b.items.forEach(it=>{icount[it.name]=(icount[it.name]||0)+it.qty;}));
+  const top=Object.entries(icount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxC=top[0]?top[0][1]:1;
+  const lbl=from===to?fmt(from):`${fmt(from)} – ${fmt(to)}`;
+
+  pg.innerHTML=`
+    <div class="rpt-filter-bar">
+      <label>📅 ช่วงวันที่</label>
+      <input type="date" class="date-input" id="rpt-from" value="${pos2iso(from)}">
+      <span class="date-sep">ถึง</span>
+      <input type="date" class="date-input" id="rpt-to" value="${pos2iso(to)}">
+      <button class="filter-btn" onclick="applyRptFilter()">ดูรายงาน</button>
+      <button class="clear-btn" onclick="resetRpt()">วันนี้</button>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:10px">แสดงข้อมูล: ${lbl}</div>
+    <div class="metric-grid">
+      <div class="mcard"><div class="mlabel">ยอดขาย</div><div class="mval">฿${total.toLocaleString()}</div><div class="msub">${data.length} บิล</div></div>
+      <div class="mcard"><div class="mlabel">จำนวนบิล</div><div class="mval">${data.length}</div><div class="msub">สำเร็จ</div></div>
+      <div class="mcard"><div class="mlabel">เฉลี่ย/บิล</div><div class="mval">฿${avg.toLocaleString()}</div><div class="msub">เฉลี่ย</div></div>
+    </div>
+    <div class="section-title">ช่องทางชำระเงิน</div>
+    <div class="pay-split">
+      <div class="pscard cash"><div class="ps-label">💵 เงินสด</div><div class="ps-val">฿${cash.toLocaleString()}</div><div class="ps-count">${cashN} บิล</div></div>
+      <div class="pscard transfer"><div class="ps-label">📱 โอนเงิน</div><div class="ps-val">฿${xfer.toLocaleString()}</div><div class="ps-count">${xferN} บิล</div></div>
+    </div>
+    <div class="section-title">สินค้าขายดี</div>
+    ${top.length?top.map(([name,cnt],i)=>`
+      <div class="ti-row">
+        <span class="ti-rank">${i+1}.</span><span class="ti-name">${name}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(cnt/maxC*100)}%"></div></div>
+        <span class="ti-cnt">${cnt} ชิ้น</span>
+      </div>`).join(''):'<div style="color:var(--text3);font-size:13px;padding:1rem 0">ยังไม่มีข้อมูล</div>'}
+    <div class="summary-box">
+      <div class="summary-title">📢 สรุปยอด · ${lbl}</div>
+      <div class="summary-body">
+        รวม: <strong>฿${total.toLocaleString()}</strong> · ${data.length} บิล<br>
+        💵 เงินสด ฿${cash.toLocaleString()} (${cashN} บิล) &nbsp;|&nbsp; 📱 โอน ฿${xfer.toLocaleString()} (${xferN} บิล)<br>
+        เฉลี่ยบิลละ ฿${avg.toLocaleString()}
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="action-btn" onclick="exportRange('${from}','${to}')">📊 Export Excel (${lbl})</button>
+      <button class="action-btn mail" onclick="sendReportEmail('${from}','${to}')">📧 ส่งสรุปทางอีเมล</button>
+    </div>
+  `;
+}
+function applyRptFilter(){const f=document.getElementById('rpt-from').value,t=document.getElementById('rpt-to').value;if(f)rptFrom=iso2pos(f);if(t)rptTo=iso2pos(t);renderReport();}
+function resetRpt(){rptFrom=today();rptTo=today();renderReport();}
+
+function sendReportEmail(from,to){
+  const data=bills.filter(b=>b.date>=from&&b.date<=to&&b.status==='ok');
+  const cancelled=bills.filter(b=>b.date>=from&&b.date<=to&&b.status==='cancelled');
+  const total=data.reduce((s,b)=>s+b.total,0);
+  const cash=data.filter(b=>b.method==='cash').reduce((s,b)=>s+b.total,0);
+  const cashN=data.filter(b=>b.method==='cash').length;
+  const xfer=data.filter(b=>b.method==='transfer').reduce((s,b)=>s+b.total,0);
+  const xferN=data.filter(b=>b.method==='transfer').length;
+  const avg=data.length?Math.round(total/data.length):0;
+  const icount={};
+  data.forEach(b=>b.items.forEach(it=>{icount[it.name]=(icount[it.name]||0)+it.qty;}));
+  const top3=Object.entries(icount).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([n,c])=>`  ${n}: ${c} ชิ้น`).join('\n');
+  const lbl=from===to?fmt(from):`${fmt(from)} – ${fmt(to)}`;
+  const subject=`[สรุปยอดร้าน] ${lbl}`;
+  const body=`สรุปยอดขาย · ${lbl}\n${'='.repeat(30)}\n\nยอดขายรวม : ฿${total.toLocaleString()}\nจำนวนบิล   : ${data.length} บิล\nเฉลี่ย/บิล  : ฿${avg.toLocaleString()}\n\nช่องทางชำระเงิน\n  💵 เงินสด  : ฿${cash.toLocaleString()} (${cashN} บิล)\n  📱 โอนเงิน : ฿${xfer.toLocaleString()} (${xferN} บิล)\n\nสินค้าขายดี Top 3\n${top3||'  ยังไม่มีข้อมูล'}\n\nบิลที่ยกเลิก : ${cancelled.length} บิล\n\n${'='.repeat(30)}\nส่งจากระบบ POS ร้านของฉัน`;
+  window.location.href=`mailto:${OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+// EXPORT
+function exportFiltered(){
+  const from=document.getElementById('bill-from').value?iso2pos(document.getElementById('bill-from').value):'';
+  const to=document.getElementById('bill-to').value?iso2pos(document.getElementById('bill-to').value):'';
+  const data=bills.filter(b=>{if(from&&b.date<from)return false;if(to&&b.date>to)return false;return true;});
+  if(!data.length){alert('ไม่มีข้อมูล');return;}
+  doExport(data,`sales_${from||'all'}_${to||'all'}`);
+}
+function exportRange(from,to){
+  const data=bills.filter(b=>b.date>=from&&b.date<=to);
+  if(!data.length){alert('ไม่มีข้อมูล');return;}
+  doExport(data,`sales_${from}_${to}`);
+}
+function doExport(data,name){
   let csv='\uFEFF';
-  csv+='รหัสบิล,เวลา,รายการสินค้า,ยอดก่อนลด,ส่วนลด,ยอดสุทธิ,ช่องทางชำระ,สถานะ,เหตุผลยกเลิก\n';
-  [...todayBills].sort((a,b)=>a.id.localeCompare(b.id)).forEach(b=>{
+  csv+='รหัสบิล,วันที่,เวลา,รายการสินค้า,ยอดก่อนลด,ส่วนลด,ยอดสุทธิ,รับมา,เงินทอน,ช่องทาง,สถานะ,เหตุผลยกเลิก\n';
+  [...data].sort((a,b)=>a.id.localeCompare(b.id)).forEach(b=>{
     const items=b.items.map(it=>`${it.name}${it.shots>0?`(+${it.shots}ช็อต)`:''} x${it.qty}`).join(' | ');
-    const status=b.status==='cancelled'?'ยกเลิก':'สำเร็จ';
-    const method=b.method==='cash'?'เงินสด':'โอนเงิน';
-    csv+=`"${b.id}","${b.time}","${items}",${b.subtotal},${b.discount},${b.total},"${method}","${status}","${b.cancelReason||'-'}"\n`;
+    csv+=`"${b.id}","${fmt(b.date)}","${b.time}","${items}",${b.subtotal},${b.discount},${b.total},${b.received||b.total},${b.change||0},"${b.method==='cash'?'เงินสด':'โอนเงิน'}","${b.status==='cancelled'?'ยกเลิก':'สำเร็จ'}","${b.cancelReason||'-'}"\n`;
   });
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`sales_${today}.csv`;a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=name+'.csv';a.click();
 }
 
 renderFooter();
+renderExpenses();
 </script>
 </body>
 </html>
