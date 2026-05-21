@@ -31,6 +31,21 @@ input,button,textarea{font-family:var(--font);font-size:14px}
 .clock{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap}
 .pg{display:none;flex:1;overflow:hidden}.pg.on{display:flex}
 
+/* TABLE BAR */
+.table-bar{display:flex;gap:6px;padding:8px 10px;background:#F0F7F4;border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;align-items:center}
+.table-bar::-webkit-scrollbar{display:none}
+.table-tab{padding:6px 14px;border-radius:var(--radius);border:1px solid var(--border2);font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text2);white-space:nowrap;transition:all .15s;flex-shrink:0}
+.table-tab:hover{border-color:var(--green);color:var(--green)}
+.table-tab.active{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+.table-tab.has-items{border-color:#FAC775;background:#FFF8E8;color:#412402}
+.table-tab.has-items.active{background:var(--green);border-color:var(--green);color:#fff}
+.table-dot{width:7px;height:7px;background:#F5A623;border-radius:50%;display:inline-block;margin-left:5px;vertical-align:middle}
+.table-tab.active .table-dot{background:rgba(255,255,255,.8)}
+.add-table-btn{padding:6px 10px;border-radius:var(--radius);border:1.5px dashed var(--border2);font-size:13px;cursor:pointer;background:transparent;color:var(--text3);flex-shrink:0;transition:all .15s}
+.add-table-btn:hover{border-color:var(--green);color:var(--green)}
+.rename-table-btn{padding:2px 6px;border-radius:6px;border:none;background:rgba(255,255,255,.25);font-size:10px;cursor:pointer;color:inherit;margin-left:4px;opacity:.7}
+.rename-table-btn:hover{opacity:1}
+
 /* SALE */
 .sale-l{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .catbar{display:flex;gap:6px;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
@@ -283,12 +298,16 @@ input,button,textarea{font-family:var(--font);font-size:14px}
   <!-- SALE -->
   <div id="pg-sale" class="pg on" style="flex-direction:row">
     <div class="sale-l">
+      <div class="table-bar" id="table-bar"></div>
       <div class="catbar" id="catbar"></div>
       <div class="pgrid" id="pgrid"></div>
     </div>
     <div class="order-panel">
       <div class="order-hdr">
-        <div class="ohdr-row"><span class="order-title">ออเดอร์</span><span class="bill-id" id="cur-bill-id">-</span></div>
+        <div class="ohdr-row">
+          <span class="order-title" id="order-title-text">ออเดอร์</span>
+          <span class="bill-id" id="cur-bill-id">-</span>
+        </div>
       </div>
       <div class="order-items" id="order-items">
         <div class="empty-msg"><span class="empty-icon">🍺</span>ยังไม่มีรายการ</div>
@@ -452,13 +471,25 @@ const PRODUCTS=[
 const SHOT=30;
 const CATS=['ทั้งหมด',...[...new Set(PRODUCTS.map(p=>p.cat))]];
 
-let order={},curCat='ทั้งหมด';
+let curCat='ทั้งหมด';
 let bills=JSON.parse(localStorage.getItem('pos_bills_v3')||'[]');
 let counter=JSON.parse(localStorage.getItem('pos_counter_v3')||'{}');
 let expenses=JSON.parse(localStorage.getItem('pos_expenses_v1')||'[]');
 let openingCash=JSON.parse(localStorage.getItem('pos_opening_v1')||'{}');
 let shotTarget=null,shotQty=0,cashStr='',netTotal=0;
 let rptFrom='',rptTo='';
+
+// MULTI-TABLE STATE
+let tables=JSON.parse(localStorage.getItem('pos_tables_v1')||'null');
+if(!tables){
+  tables=[{id:'t1',name:'โต๊ะ 1',order:{},discount:0},{id:'t2',name:'โต๊ะ 2',order:{},discount:0},{id:'t3',name:'โต๊ะ 3',order:{},discount:0}];
+  localStorage.setItem('pos_tables_v1',JSON.stringify(tables));
+}
+let curTableId=tables[0].id;
+
+function saveTables(){localStorage.setItem('pos_tables_v1',JSON.stringify(tables));}
+function getCurTable(){return tables.find(t=>t.id===curTableId)||tables[0];}
+function getCurOrder(){return getCurTable().order||{};}
 
 function save(){
   localStorage.setItem('pos_bills_v3',JSON.stringify(bills));
@@ -478,11 +509,56 @@ let curBillId=genId();
 document.getElementById('cur-bill-id').textContent=curBillId;
 setInterval(()=>{const n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});},1000);
 
+// TABLE BAR
+function renderTableBar(){
+  const bar=document.getElementById('table-bar');
+  bar.innerHTML=tables.map(t=>{
+    const hasItems=Object.keys(t.order||{}).length>0;
+    const total=Object.values(t.order||{}).reduce((s,it)=>s+it.fp*it.qty,0);
+    const isActive=t.id===curTableId;
+    return `<button class="table-tab${isActive?' active':''}${hasItems?' has-items':''}" onclick="switchTable('${t.id}')">
+      ${t.name}${hasItems?`<span class="table-dot"></span>`:''}
+      ${hasItems&&!isActive?`<span style="font-size:10px;margin-left:3px;opacity:.7">฿${total.toLocaleString()}</span>`:''}
+    </button>`;
+  }).join('')+`<button class="add-table-btn" onclick="addTable()">+ โต๊ะ</button>`;
+}
+
+function switchTable(id){
+  curTableId=id;
+  const t=getCurTable();
+  document.getElementById('cur-bill-id').textContent=genId();
+  // restore discount
+  const discEl=document.getElementById('disc-input');
+  if(discEl)discEl.value=t.discount||0;
+  renderTableBar();
+  renderOrder();
+  updateOrderTitle();
+}
+
+function updateOrderTitle(){
+  const t=getCurTable();
+  const el=document.getElementById('order-title-text');
+  if(el)el.textContent=t.name;
+}
+
+function addTable(){
+  const name=prompt('ตั้งชื่อโต๊ะใหม่:',`โต๊ะ ${tables.length+1}`);
+  if(!name)return;
+  const id='t'+Date.now();
+  tables.push({id,name,order:{},discount:0});
+  saveTables();
+  curTableId=id;
+  renderTableBar();
+  renderOrder();
+  updateOrderTitle();
+}
+
 function showPg(name,btn){
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
   document.getElementById('pg-'+name).classList.add('on');
   document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
+  if(name==='sale'){renderTableBar();renderOrder();updateOrderTitle();}
   if(name==='bills')applyBillFilter();
   if(name==='expense')renderExpenses();
   if(name==='closeday')renderCloseDay();
@@ -515,17 +591,31 @@ function adjShot(d){shotQty=Math.max(0,shotQty+d);document.getElementById('shot-
 function confirmShot(){if(shotTarget)addItem(shotTarget,shotQty);closeShotModal();}
 
 function addItem(p,shots){
+  const t=getCurTable();
   const k=`${p.id}_${shots}`;
-  if(order[k])order[k].qty++;
-  else order[k]={...p,shots,fp:p.price+shots*SHOT,qty:1};
+  if(t.order[k])t.order[k].qty++;
+  else t.order[k]={...p,shots,fp:p.price+shots*SHOT,qty:1};
+  saveTables();
   renderOrder();
+  renderTableBar();
 }
-function removeOne(k){if(!order[k])return;order[k].qty--;if(!order[k].qty)delete order[k];renderOrder();}
-function addOne(k){order[k].qty++;renderOrder();}
+function removeOne(k){
+  const t=getCurTable();
+  if(!t.order[k])return;
+  t.order[k].qty--;
+  if(!t.order[k].qty)delete t.order[k];
+  saveTables();renderOrder();renderTableBar();
+}
+function addOne(k){
+  const t=getCurTable();
+  t.order[k].qty++;
+  saveTables();renderOrder();renderTableBar();
+}
 
 function renderOrder(){
   const el=document.getElementById('order-items');
-  const items=Object.entries(order);
+  const t=getCurTable();
+  const items=Object.entries(t.order||{});
   if(!items.length){el.innerHTML='<div class="empty-msg"><span class="empty-icon">🍺</span>ยังไม่มีรายการ</div>';renderFooter();return;}
   el.innerHTML=items.map(([k,it])=>`
     <div class="oi">
@@ -544,9 +634,11 @@ function renderOrder(){
 }
 
 function renderFooter(){
-  const items=Object.values(order);
+  const t=getCurTable();
+  const items=Object.values(t.order||{});
   const sub=items.reduce((s,it)=>s+it.fp*it.qty,0);
   const disc=Math.max(0,parseInt(document.getElementById('disc-input').value)||0);
+  t.discount=disc;saveTables();
   netTotal=Math.max(0,sub-disc);
   document.getElementById('subtotal').textContent='฿'+sub.toLocaleString();
   document.getElementById('disc-show').textContent='-฿'+disc.toLocaleString();
@@ -581,20 +673,24 @@ function updChange(){
 function confirmCash(){const recv=parseInt(cashStr)||0,chg=recv-netTotal;closeCashModal();doPay('cash',recv,chg);}
 
 function doPay(method,recv,chg){
-  const items=Object.values(order);if(!items.length)return;
+  const t=getCurTable();
+  const items=Object.values(t.order||{});if(!items.length)return;
   const sub=items.reduce((s,it)=>s+it.fp*it.qty,0);
   const disc=Math.max(0,parseInt(document.getElementById('disc-input').value)||0);
   const net=Math.max(0,sub-disc);
   const now=new Date();
-  const bill={id:curBillId,time:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),date:today(),
+  const billId=genId();
+  const bill={id:billId,time:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),date:today(),
+    tableName:t.name,
     items:items.map(it=>({name:it.name,icon:it.icon,qty:it.qty,fp:it.fp,shots:it.shots})),
     subtotal:sub,discount:disc,total:net,method,received:method==='cash'?recv:net,change:method==='cash'?chg:0,status:'ok',cancelReason:''};
   bills.unshift(bill);save();
-  order={};document.getElementById('disc-input').value=0;
-  curBillId=genId();document.getElementById('cur-bill-id').textContent=curBillId;
-  renderOrder();
+  // clear this table's order
+  t.order={};t.discount=0;saveTables();
+  document.getElementById('disc-input').value=0;
+  renderOrder();renderTableBar();
   const msg=method==='cash'&&chg>0?`\n💰 เงินทอน: ฿${chg.toLocaleString()}`:'';
-  alert(`✅ ชำระสำเร็จ!\nบิล ${bill.id} · ฿${net.toLocaleString()}${msg}`);
+  alert(`✅ ชำระสำเร็จ!\n${t.name} · บิล ${bill.id} · ฿${net.toLocaleString()}${msg}`);
 }
 
 // BILLS
@@ -616,6 +712,7 @@ function renderBillsList(list){
   el.innerHTML=list.map(b=>`
     <div class="bill-card${b.status==='cancelled'?' cancelled':''}" onclick="showBill('${b.id}')">
       <div class="bc-top"><span class="bc-id${b.status==='cancelled'?' cancelled':''}">${b.id}</span><span class="bc-time">${fmt(b.date)} ${b.time}</span></div>
+      ${b.tableName?`<div style="font-size:11px;color:var(--green-dark);font-weight:600;margin-bottom:3px">🪑 ${b.tableName}</div>`:''}
       <div class="bc-items">${b.items.map(i=>`${i.icon}${i.name}${i.qty>1?' x'+i.qty:''}`).join(' · ')}</div>
       <div class="bc-bot">
         <span class="bc-total">฿${b.total.toLocaleString()}</span>
@@ -753,9 +850,10 @@ function renderCloseDay(){
       return `<div style="padding:8px 0;border-bottom:1px solid var(--border)">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
           <span style="font-size:13px;flex:1;font-weight:500">${item.icon} ${item.name}</span>
-          <input type="number" min="0" value="${qty}" placeholder="0"
+          <input type="number" min="0" value="${qty}" placeholder="0" id="stock-${item.id}"
             style="width:70px;padding:5px 8px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);font-size:13px;font-weight:600;font-family:var(--mono);text-align:right"
-            oninput="saveStock('${item.id}',this.value);renderCloseDay()">
+            oninput="saveStock('${item.id}',this.value)"
+            onblur="updateStockHint('${item.id}')">
           <span style="font-size:12px;color:var(--text2);min-width:42px">${item.unit} (min ${item.min})</span>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
@@ -765,17 +863,18 @@ function renderCloseDay(){
             onchange="saveDraftDate(this.value)">
           ${savedDraftDate?`<span style="font-size:11px;color:var(--text3)">เปิดมาแล้ว ${calcDraftDays(savedDraftDate)} วัน</span>`:''}
         </div>
-        <div style="margin-top:3px">${orderHint}</div>
+        <div id="hint-${item.id}" style="margin-top:3px">${orderHint}</div>
       </div>`;
     }
 
     return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
       <span style="font-size:13px;flex:1;font-weight:500">${item.icon} ${item.name}</span>
-      <input type="number" min="0" value="${qty}" placeholder="0"
+      <input type="number" min="0" value="${qty}" placeholder="0" id="stock-${item.id}"
         style="width:70px;padding:5px 8px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg);font-size:13px;font-weight:600;font-family:var(--mono);text-align:right;${isLow?'border-color:var(--red);':''}"
-        oninput="saveStock('${item.id}',this.value);renderCloseDay()">
+        oninput="saveStock('${item.id}',this.value)"
+        onblur="updateStockHint('${item.id}')">
       <span style="font-size:12px;color:var(--text2);min-width:42px">${item.unit} (min ${item.min})</span>
-      <span style="min-width:130px;text-align:right">${orderHint}</span>
+      <span id="hint-${item.id}" style="min-width:130px;text-align:right">${orderHint}</span>
     </div>`;
   }).join('');
 
@@ -851,6 +950,29 @@ function saveStock(id,val){
   const s=JSON.parse(localStorage.getItem('pos_stock_v1')||'{}');
   s[id]=val;
   localStorage.setItem('pos_stock_v1',JSON.stringify(s));
+}
+
+function updateStockHint(id){
+  const item=STOCK_ITEMS.find(x=>x.id===id);
+  if(!item)return;
+  const s=JSON.parse(localStorage.getItem('pos_stock_v1')||'{}');
+  const qty=s[id]||'';
+  const qtyNum=parseInt(qty)||0;
+  const need=qty!==''&&qtyNum<item.min?item.min-qtyNum:0;
+  let hint='';
+  if(need>0&&item.perBox){
+    if(item.isDraft)hint=`<span style="color:var(--red);font-size:11px;font-weight:600">⚠️ ต้องสั่ง 2 ถัง (30 เหยือก)</span>`;
+    else{const boxes=Math.ceil(need/item.perBox);hint=`<span style="color:var(--red);font-size:11px;font-weight:600">⚠️ สั่งเพิ่ม ${boxes} ${item.boxUnit} (${boxes*item.perBox} ${item.unit})</span>`;}
+  } else if(need>0&&!item.perBox){
+    hint=`<span style="color:var(--red);font-size:11px;font-weight:600">⚠️ สั่งเพิ่ม ${need} ${item.unit}</span>`;
+  } else if(qty!==''&&qtyNum>=item.min){
+    hint=`<span style="color:var(--green-dark);font-size:11px">✅ เพียงพอ</span>`;
+  }
+  const el=document.getElementById('hint-'+id);
+  if(el)el.innerHTML=hint;
+  // update border color
+  const inp=document.getElementById('stock-'+id);
+  if(inp)inp.style.borderColor=need>0?'var(--red)':'var(--border2)';
 }
 function saveDraftDate(val){
   localStorage.setItem('pos_draft_date',val);
@@ -1064,6 +1186,8 @@ function doExport(data,name){
 
 renderFooter();
 renderExpenses();
+renderTableBar();
+updateOrderTitle();
 </script>
 </body>
 </html>
