@@ -513,8 +513,10 @@ setInterval(()=>{const n=new Date();document.getElementById('clock').textContent
 function renderTableBar(){
   const bar=document.getElementById('table-bar');
   bar.innerHTML=tables.map(t=>{
-    const hasItems=Object.keys(t.order||{}).length>0;
-    const total=Object.values(t.order||{}).reduce((s,it)=>s+it.fp*it.qty,0);
+    const rounds=t.rounds||[];
+    const allItems=rounds.flatMap(r=>Object.values(r.items));
+    const hasItems=allItems.length>0;
+    const total=allItems.reduce((s,it)=>s+it.fp*it.qty,0);
     const isActive=t.id===curTableId;
     return `<button class="table-tab${isActive?' active':''}${hasItems?' has-items':''}" onclick="switchTable('${t.id}')">
       ${t.name}${hasItems?`<span class="table-dot"></span>`:''}
@@ -526,8 +528,6 @@ function renderTableBar(){
 function switchTable(id){
   curTableId=id;
   const t=getCurTable();
-  document.getElementById('cur-bill-id').textContent=genId();
-  // restore discount
   const discEl=document.getElementById('disc-input');
   if(discEl)discEl.value=t.discount||0;
   renderTableBar();
@@ -592,58 +592,94 @@ function confirmShot(){if(shotTarget)addItem(shotTarget,shotQty);closeShotModal(
 
 function addItem(p,shots){
   const t=getCurTable();
+  if(!t.rounds)t.rounds=[];
+  // always add to a new entry in current round (last round)
+  if(!t.rounds.length)t.rounds.push({items:{}});
+  const curRound=t.rounds[t.rounds.length-1];
   const k=`${p.id}_${shots}`;
-  if(t.order[k])t.order[k].qty++;
-  else t.order[k]={...p,shots,fp:p.price+shots*SHOT,qty:1};
+  if(curRound.items[k])curRound.items[k].qty++;
+  else curRound.items[k]={...p,shots,fp:p.price+shots*SHOT,qty:1};
   saveTables();
   renderOrder();
   renderTableBar();
 }
-function removeOne(k){
+function removeOne(k,roundIdx){
   const t=getCurTable();
-  if(!t.order[k])return;
-  t.order[k].qty--;
-  if(!t.order[k].qty)delete t.order[k];
+  if(!t.rounds||!t.rounds[roundIdx])return;
+  const r=t.rounds[roundIdx];
+  if(!r.items[k])return;
+  r.items[k].qty--;
+  if(!r.items[k].qty)delete r.items[k];
+  // remove empty rounds
+  t.rounds=t.rounds.filter(r=>Object.keys(r.items).length>0);
   saveTables();renderOrder();renderTableBar();
 }
-function addOne(k){
+function addOne(k,roundIdx){
   const t=getCurTable();
-  t.order[k].qty++;
+  if(!t.rounds||!t.rounds[roundIdx])return;
+  t.rounds[roundIdx].items[k].qty++;
   saveTables();renderOrder();renderTableBar();
+}
+function addRound(){
+  const t=getCurTable();
+  if(!t.rounds)t.rounds=[];
+  t.rounds.push({items:{}});
+  saveTables();renderOrder();
 }
 
 function renderOrder(){
   const el=document.getElementById('order-items');
   const t=getCurTable();
-  const items=Object.entries(t.order||{});
-  if(!items.length){el.innerHTML='<div class="empty-msg"><span class="empty-icon">🍺</span>ยังไม่มีรายการ</div>';renderFooter();return;}
-  el.innerHTML=items.map(([k,it])=>`
-    <div class="oi">
-      <div class="oi-info">
-        <div class="oi-name">${it.icon} ${it.name}</div>
-        <div class="oi-sub">${it.shots>0?`+${it.shots} ช็อต (+฿${it.shots*SHOT})`:`฿${it.price}/ชิ้น`}</div>
-        <div class="qty-ctrl">
-          <button class="qbtn" onclick="removeOne('${k}')">−</button>
-          <span class="qval">${it.qty}</span>
-          <button class="qbtn" onclick="addOne('${k}')">+</button>
+  const rounds=t.rounds||[];
+  // flatten all items for footer calc
+  const allItems=rounds.flatMap(r=>Object.values(r.items));
+  if(!allItems.length){
+    el.innerHTML='<div class="empty-msg"><span class="empty-icon">🍺</span>ยังไม่มีรายการ<br><small style="font-size:11px;opacity:.6">กดสินค้าเพื่อเพิ่ม</small></div>';
+    renderFooter();return;
+  }
+  let html='';
+  rounds.forEach((r,ri)=>{
+    const rItems=Object.entries(r.items);
+    if(!rItems.length)return;
+    const rTotal=Object.values(r.items).reduce((s,it)=>s+it.fp*it.qty,0);
+    html+=`<div style="margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;background:var(--green-light);border-radius:6px;margin-bottom:4px">
+        <span style="font-size:11px;font-weight:600;color:var(--green-dark)">🔸 รอบที่ ${ri+1}</span>
+        <span style="font-size:11px;color:var(--green-dark);font-family:var(--mono)">฿${rTotal.toLocaleString()}</span>
+      </div>`;
+    rItems.forEach(([k,it])=>{
+      html+=`<div class="oi">
+        <div class="oi-info">
+          <div class="oi-name">${it.icon} ${it.name}</div>
+          <div class="oi-sub">${it.shots>0?`+${it.shots} ช็อต (+฿${it.shots*SHOT})`:`฿${it.price}/ชิ้น`}</div>
+          <div class="qty-ctrl">
+            <button class="qbtn" onclick="removeOne('${k}',${ri})">−</button>
+            <span class="qval">${it.qty}</span>
+            <button class="qbtn" onclick="addOne('${k}',${ri})">+</button>
+          </div>
         </div>
-      </div>
-      <div class="oi-right"><div class="oi-price">฿${(it.fp*it.qty).toLocaleString()}</div></div>
-    </div>`).join('');
+        <div class="oi-right"><div class="oi-price">฿${(it.fp*it.qty).toLocaleString()}</div></div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  html+=`<button onclick="addRound()" style="width:100%;padding:7px;border-radius:var(--radius);border:1.5px dashed var(--border2);background:transparent;font-size:12px;cursor:pointer;color:var(--text3);margin-top:4px">+ เพิ่มรอบใหม่</button>`;
+  el.innerHTML=html;
   renderFooter();
 }
 
 function renderFooter(){
   const t=getCurTable();
-  const items=Object.values(t.order||{});
-  const sub=items.reduce((s,it)=>s+it.fp*it.qty,0);
+  const rounds=t.rounds||[];
+  const allItems=rounds.flatMap(r=>Object.values(r.items));
+  const sub=allItems.reduce((s,it)=>s+it.fp*it.qty,0);
   const disc=Math.max(0,parseInt(document.getElementById('disc-input').value)||0);
   t.discount=disc;saveTables();
   netTotal=Math.max(0,sub-disc);
   document.getElementById('subtotal').textContent='฿'+sub.toLocaleString();
   document.getElementById('disc-show').textContent='-฿'+disc.toLocaleString();
   document.getElementById('net-total').textContent='฿'+netTotal.toLocaleString();
-  const has=items.length>0;
+  const has=allItems.length>0;
   document.getElementById('pay-cash').disabled=!has;
   document.getElementById('pay-transfer').disabled=!has;
 }
@@ -674,19 +710,28 @@ function confirmCash(){const recv=parseInt(cashStr)||0,chg=recv-netTotal;closeCa
 
 function doPay(method,recv,chg){
   const t=getCurTable();
-  const items=Object.values(t.order||{});if(!items.length)return;
-  const sub=items.reduce((s,it)=>s+it.fp*it.qty,0);
+  const rounds=t.rounds||[];
+  const allItems=rounds.flatMap(r=>Object.values(r.items));
+  if(!allItems.length)return;
+  const sub=allItems.reduce((s,it)=>s+it.fp*it.qty,0);
   const disc=Math.max(0,parseInt(document.getElementById('disc-input').value)||0);
   const net=Math.max(0,sub-disc);
   const now=new Date();
   const billId=genId();
+  // flatten items merging same product across rounds
+  const mergedItems={};
+  allItems.forEach(it=>{
+    const k=`${it.id}_${it.shots}`;
+    if(mergedItems[k])mergedItems[k].qty+=it.qty;
+    else mergedItems[k]={...it};
+  });
   const bill={id:billId,time:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),date:today(),
     tableName:t.name,
-    items:items.map(it=>({name:it.name,icon:it.icon,qty:it.qty,fp:it.fp,shots:it.shots})),
+    rounds:rounds.length,
+    items:Object.values(mergedItems).map(it=>({name:it.name,icon:it.icon,qty:it.qty,fp:it.fp,shots:it.shots})),
     subtotal:sub,discount:disc,total:net,method,received:method==='cash'?recv:net,change:method==='cash'?chg:0,status:'ok',cancelReason:''};
   bills.unshift(bill);save();
-  // clear this table's order
-  t.order={};t.discount=0;saveTables();
+  t.rounds=[];t.discount=0;saveTables();
   document.getElementById('disc-input').value=0;
   renderOrder();renderTableBar();
   const msg=method==='cash'&&chg>0?`\n💰 เงินทอน: ฿${chg.toLocaleString()}`:'';
@@ -729,7 +774,7 @@ function showBill(id){
     <div class="bd-hdr">
       <div>
         <div style="font-family:var(--mono);font-size:13px;font-weight:600;color:${cancelled?'var(--red-dark)':'var(--green)'}">${b.id}</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:2px">${fmt(b.date)} · ${b.time} · ${cancelled?'<span style="color:var(--red-dark);font-weight:600">ยกเลิกแล้ว</span>':(b.method==='cash'?'💵 เงินสด':'📱 โอนเงิน')}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px">${fmt(b.date)} · ${b.time}${b.tableName?` · 🪑 ${b.tableName}`:''} · ${cancelled?'<span style="color:var(--red-dark);font-weight:600">ยกเลิกแล้ว</span>':(b.method==='cash'?'💵 เงินสด':'📱 โอนเงิน')}</div>
       </div>
       <button class="bd-close" onclick="document.getElementById('bd-overlay').classList.remove('on')">✕</button>
     </div>
@@ -743,6 +788,18 @@ function showBill(id){
     <div class="bd-total"><span>สุทธิ</span><span>฿${b.total.toLocaleString()}</span></div>
     ${b.method==='cash'?`<div style="font-size:12px;color:var(--text2);margin-bottom:8px">รับมา ฿${b.received.toLocaleString()} · ทอน ฿${b.change.toLocaleString()}</div>`:''}
     ${!cancelled?`
+    <!-- EDIT PAYMENT -->
+    <div style="margin-top:10px;padding:12px;background:var(--blue-light);border-radius:var(--radius);border:1px solid #B5D4F4">
+      <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:8px">✏️ แก้ไขช่องทางชำระเงิน</div>
+      <div style="display:flex;gap:8px;margin-bottom:0">
+        <button onclick="changePayMethod('${b.id}','cash')" style="flex:1;padding:8px;border-radius:var(--radius);border:2px solid ${b.method==='cash'?'var(--green)':'var(--border2)'};background:${b.method==='cash'?'var(--green-light)':'transparent'};font-size:13px;font-weight:600;cursor:pointer;color:${b.method==='cash'?'var(--green-dark)':'var(--text2)'}">
+          💵 เงินสด
+        </button>
+        <button onclick="changePayMethod('${b.id}','transfer')" style="flex:1;padding:8px;border-radius:var(--radius);border:2px solid ${b.method==='transfer'?'var(--blue)':'var(--border2)'};background:${b.method==='transfer'?'var(--blue-light)':'transparent'};font-size:13px;font-weight:600;cursor:pointer;color:${b.method==='transfer'?'var(--blue)':'var(--text2)'}">
+          📱 โอนเงิน
+        </button>
+      </div>
+    </div>
     <div class="cancel-area">
       <label>ยกเลิกบิลนี้</label>
       <textarea class="cancel-reason" id="creason" rows="2" placeholder="ระบุเหตุผล (จำเป็น)"></textarea>
@@ -750,6 +807,20 @@ function showBill(id){
     </div>`:''}
   `;
   document.getElementById('bd-overlay').classList.add('on');
+}
+
+function changePayMethod(id,method){
+  const b=bills.find(x=>x.id===id);
+  if(!b||b.status==='cancelled')return;
+  if(b.method===method){alert('ช่องทางนี้เป็นอยู่แล้วค่ะ');return;}
+  const oldMethod=b.method==='cash'?'เงินสด':'โอนเงิน';
+  const newMethod=method==='cash'?'เงินสด':'โอนเงิน';
+  if(!confirm(`เปลี่ยนจาก "${oldMethod}" เป็น "${newMethod}" ใช่ไหมคะ?`))return;
+  b.method=method;
+  if(method==='transfer'){b.received=b.total;b.change=0;}
+  save();
+  applyBillFilter();
+  showBill(id);
 }
 function cancelBill(id){
   const r=(document.getElementById('creason')?.value||'').trim();
