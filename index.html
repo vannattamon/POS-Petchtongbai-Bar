@@ -1074,6 +1074,8 @@ function calcDiff(expected){
 }
 
 function sendCloseDayEmail(cashSales,xferSales,totalExp,opening,floatRemain,totalCash,d){
+  const SHEET_URL='https://script.google.com/macros/s/AKfycbwhvtEnhq7-LlzcBmT0R20YQP4JC5oAz-VOO5TKX1lQN8U0hz-upblYC0gCmJMPj9l9iw/exec';
+
   const todayExp=expenses.filter(e=>e.date===d);
   const expLines=todayExp.length?todayExp.map(e=>`  - ${e.desc}: ฿${e.amount.toLocaleString()}`).join('\n'):'  ไม่มีค่าใช้จ่าย';
   const actual=parseInt(document.getElementById('actual-cash-input')?.value)||0;
@@ -1113,6 +1115,38 @@ function sendCloseDayEmail(cashSales,xferSales,totalExp,opening,floatRemain,tota
     const draftInfo=item.isDraft&&savedDraftDate?` (เปิดถัง: ${savedDraftDate} / ${calcDraftDays(savedDraftDate)} วันที่แล้ว)`:'';
     return `  ${item.name}: ${qtyNum} ${item.unit}${draftInfo} [min ${item.min}] ${status}${orderNote}`;
   }).join('\n');
+
+  // ── ส่งข้อมูลเข้า Google Sheet ──
+  const dateObj=new Date();
+  const monthNames=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const monthStr=monthNames[dateObj.getMonth()]+' '+(dateObj.getFullYear()+543);
+
+  const sheetData={
+    month: monthStr,
+    date: fmt(d),
+    cashSales, xferSales, totalSales,
+    singha:  parseInt(savedStock['singha'])||0,
+    leo:     parseInt(savedStock['leo'])||0,
+    chang:   parseInt(savedStock['chang'])||0,
+    khaohom: parseInt(savedStock['khaohom'])||0,
+    regency: parseInt(savedStock['regency'])||0,
+    grand:   parseInt(savedStock['grand'])||0,
+    saeng:   parseInt(savedStock['saeng'])||0,
+    hong:    parseInt(savedStock['hong'])||0,
+    soda:    parseInt(savedStock['soda'])||0,
+    draft:   parseInt(savedStock['draft'])||0
+  };
+
+  fetch(SHEET_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(sheetData)
+  }).then(()=>{
+    console.log('✅ ส่งข้อมูลเข้า Google Sheet แล้ว');
+  }).catch(err=>{
+    console.error('❌ ส่ง Sheet ไม่สำเร็จ:',err);
+  });
 
   const subject=`[ปิดร้าน] สรุปประจำวัน ${fmt(d)}`;
   const body=
