@@ -440,6 +440,18 @@ input,button,textarea{font-family:var(--font);font-size:14px}
   <div class="bd-modal" id="bd-content"></div>
 </div>
 
+<!-- OPEN SHOP -->
+<div class="overlay" id="openshop-overlay">
+  <div class="modal" style="width:305px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:3px">🔓 เปิดร้าน</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:14px" id="openshop-date"></div>
+    <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px">เงินทอนตั้งต้น</div>
+    <input id="openshop-cash" type="number" min="0" placeholder="0" style="width:100%;padding:9px 12px;border-radius:var(--radius);border:2px solid var(--green);background:var(--bg);color:var(--text);font-size:20px;font-weight:700;font-family:var(--mono);text-align:right;margin-bottom:6px;box-sizing:border-box">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:14px">กรอกยอดเงินสดที่เตรียมไว้สำหรับทอนตอนเปิดร้าน ระบบจะบันทึกเวลาเปิดร้านให้อัตโนมัติ</div>
+    <button class="btn-primary" style="width:100%" onclick="confirmOpenShop()">🔓 เปิดร้าน</button>
+  </div>
+</div>
+
 <script>
 const OWNER_EMAIL='vannattamon@gmail.com';
 
@@ -496,6 +508,31 @@ if(!tables){
 }
 let curTableId=tables[0].id;
 
+// BUSINESS DAY (shop open/close) STATE
+// bills/expenses made after midnight but before the shop is closed still belong
+// to the business day that was opened — this stops them leaking into "tomorrow".
+let shopDay=JSON.parse(localStorage.getItem('pos_shopday_v1')||'null');
+function saveShopDay(){localStorage.setItem('pos_shopday_v1',JSON.stringify(shopDay));}
+function bizDate(){return (shopDay&&shopDay.date)?shopDay.date:today();}
+function showOpenShopModalIfNeeded(){
+  if(!shopDay||!shopDay.open){
+    document.getElementById('openshop-date').textContent='วันที่ '+fmt(today());
+    document.getElementById('openshop-cash').value='';
+    document.getElementById('openshop-overlay').classList.add('on');
+  }
+}
+function confirmOpenShop(){
+  const cash=parseInt(document.getElementById('openshop-cash').value)||0;
+  const d=today();
+  shopDay={date:d,open:true,openTime:nowTime(),closeTime:null};
+  saveShopDay();
+  openingCash[d]=cash;
+  save();
+  document.getElementById('openshop-overlay').classList.remove('on');
+  renderTableBar();renderOrder();updateOrderTitle();
+  if(document.getElementById('pg-closeday').classList.contains('on'))renderCloseDay();
+}
+
 function saveTables(){localStorage.setItem('pos_tables_v1',JSON.stringify(tables));}
 function getCurTable(){return tables.find(t=>t.id===curTableId)||tables[0];}
 function getCurOrder(){return getCurTable().order||{};}
@@ -511,7 +548,7 @@ function pad(n){return String(n).padStart(2,'0');}
 function fmt(s){return `${s.slice(6,8)}/${s.slice(4,6)}/${s.slice(0,4)}`;}
 function iso2pos(s){return s.replace(/-/g,'');}
 function pos2iso(s){return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;}
-function genId(){const d=today();counter[d]=(counter[d]||0)+1;save();return `${d}${String(counter[d]).padStart(3,'0')}`;}
+function genId(){const d=bizDate();counter[d]=(counter[d]||0)+1;save();return `${d}${String(counter[d]).padStart(3,'0')}`;}
 function nowTime(){return new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});}
 
 let curBillId=genId();
@@ -571,7 +608,7 @@ function showPg(name,btn){
   if(name==='bills')applyBillFilter();
   if(name==='expense')renderExpenses();
   if(name==='closeday')renderCloseDay();
-  if(name==='report'){rptFrom=rptFrom||today();rptTo=rptTo||today();renderReport();}
+  if(name==='report'){rptFrom=rptFrom||bizDate();rptTo=rptTo||bizDate();renderReport();}
 }
 
 // PRODUCTS
@@ -734,7 +771,7 @@ function doPay(method,recv,chg){
     if(mergedItems[k])mergedItems[k].qty+=it.qty;
     else mergedItems[k]={...it};
   });
-  const bill={id:billId,time:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),date:today(),
+  const bill={id:billId,time:now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),date:bizDate(),
     tableName:t.name,
     rounds:rounds.length,
     items:Object.values(mergedItems).map(it=>({name:it.name,icon:it.icon,qty:it.qty,fp:it.fp,shots:it.shots})),
@@ -853,7 +890,7 @@ function addExpense(){
   const amount=unitPrice*qty;
   if(!desc){alert('กรุณากรอกชื่อค่าใช้จ่าย');return;}
   if(!unitPrice){alert('กรุณากรอกราคาต่อหน่วย');return;}
-  expenses.push({id:Date.now(),date:today(),time:nowTime(),desc,unitPrice,qty,amount});
+  expenses.push({id:Date.now(),date:bizDate(),time:nowTime(),desc,unitPrice,qty,amount});
   save();
   document.getElementById('exp-desc').value='';
   document.getElementById('exp-unit-price').value='';
@@ -867,7 +904,7 @@ function deleteExpense(id){
   save();renderExpenses();
 }
 function renderExpenses(){
-  const todayExp=expenses.filter(e=>e.date===today());
+  const todayExp=expenses.filter(e=>e.date===bizDate());
   const total=todayExp.reduce((s,e)=>s+e.amount,0);
   const el=document.getElementById('expense-list');
   const totalRow=document.getElementById('expense-total-row');
@@ -904,7 +941,7 @@ const STOCK_ITEMS=[
 
 // CLOSE DAY
 function renderCloseDay(){
-  const d=today();
+  const d=bizDate();
   const todayBills=bills.filter(b=>b.date===d&&b.status==='ok');
   const cashSales=todayBills.filter(b=>b.method==='cash').reduce((s,b)=>s+b.total,0);
   const xferSales=todayBills.filter(b=>b.method==='transfer').reduce((s,b)=>s+b.total,0);
@@ -972,6 +1009,7 @@ function renderCloseDay(){
     <!-- Opening cash -->
     <div class="cd-card">
       <div class="cd-title">🌅 เงินทอนตั้งต้น (เปิดร้าน)</div>
+      ${shopDay&&shopDay.open?`<div class="cd-row"><span class="cd-label">🕐 เวลาเปิดร้าน</span><span class="cd-value green">${shopDay.openTime||'-'}</span></div>`:''}
       <div class="opening-input-row">
         <input class="opening-input" id="opening-input" type="number" min="0" value="${opening}" placeholder="0">
         <span style="font-size:13px;color:var(--text2)">บาท</span>
@@ -1031,7 +1069,7 @@ function renderCloseDay(){
     </div>
 
     <div style="padding-bottom:8px">
-      <button class="add-expense-btn" style="background:var(--green)" onclick="sendCloseDayEmail(${cashSales},${xferSales},${totalExp},${opening},${floatRemain},${totalCash},'${d}')">📧 ส่งสรุปปิดร้านทางอีเมล</button>
+      <button class="add-expense-btn" style="background:var(--green)" onclick="sendCloseDayEmail(${cashSales},${xferSales},${totalExp},${opening},${floatRemain},${totalCash},'${d}')">🔒 ปิดร้าน & ส่งสรุปทางอีเมล</button>
     </div>
   `;
 }
@@ -1077,7 +1115,7 @@ function calcDraftDays(dateStr){
 
 function setOpening(){
   const val=parseInt(document.getElementById('opening-input').value)||0;
-  openingCash[today()]=val;save();
+  openingCash[bizDate()]=val;save();
   renderCloseDay();
   alert(`✅ บันทึกเงินทอนตั้งต้น ฿${val.toLocaleString()} แล้วค่ะ`);
 }
@@ -1093,6 +1131,10 @@ function calcDiff(expected){
 }
 
 function sendCloseDayEmail(cashSales,xferSales,totalExp,opening,floatRemain,totalCash,d){
+  if(!confirm('ยืนยันปิดร้านและส่งสรุปทางอีเมลใช่ไหมคะ?\nระบบจะบันทึกเวลานี้เป็นเวลาปิดร้าน และครั้งถัดไปต้องกด "เปิดร้าน" ใหม่ก่อนเริ่มขาย'))return;
+  if(shopDay){shopDay.closeTime=nowTime();shopDay.open=false;saveShopDay();}
+  const openTimeStr=shopDay&&shopDay.openTime?shopDay.openTime:'-';
+  const closeTimeStr=shopDay&&shopDay.closeTime?shopDay.closeTime:nowTime();
   const SHEET_URL='https://script.google.com/macros/s/AKfycbwhvtEnhq7-LlzcBmT0R20YQP4JC5oAz-VOO5TKX1lQN8U0hz-upblYC0gCmJMPj9l9iw/exec';
 
   const todayExp=expenses.filter(e=>e.date===d);
@@ -1172,6 +1214,9 @@ function sendCloseDayEmail(cashSales,xferSales,totalExp,opening,floatRemain,tota
 `สรุปปิดร้าน · ${fmt(d)}
 ${'='.repeat(32)}
 
+เวลาเปิดร้าน     : ${openTimeStr} น.
+เวลาปิดร้าน      : ${closeTimeStr} น.
+
 ยอดขายเงินสด     : ฿${cashSales.toLocaleString()}
 ยอดขายโอนเงิน    : ฿${xferSales.toLocaleString()}
 รวมยอดขาย        : ฿${totalSales.toLocaleString()}
@@ -1204,12 +1249,16 @@ ${'='.repeat(32)}
 ส่งจากระบบ POS ร้านของฉัน`;
 
   window.location.href=`mailto:${OWNER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  shopDay=null;
+  saveShopDay();
+  showOpenShopModalIfNeeded();
 }
 
 // REPORT
 function renderReport(){
   const pg=document.getElementById('report-pg');
-  const from=rptFrom||today(),to=rptTo||today();
+  const from=rptFrom||bizDate(),to=rptTo||bizDate();
   const data=bills.filter(b=>b.date>=from&&b.date<=to&&b.status==='ok');
   const total=data.reduce((s,b)=>s+b.total,0);
   const cash=data.filter(b=>b.method==='cash').reduce((s,b)=>s+b.total,0);
@@ -1265,7 +1314,7 @@ function renderReport(){
   `;
 }
 function applyRptFilter(){const f=document.getElementById('rpt-from').value,t=document.getElementById('rpt-to').value;if(f)rptFrom=iso2pos(f);if(t)rptTo=iso2pos(t);renderReport();}
-function resetRpt(){rptFrom=today();rptTo=today();renderReport();}
+function resetRpt(){rptFrom=bizDate();rptTo=bizDate();renderReport();}
 
 function sendReportEmail(from,to){
   const data=bills.filter(b=>b.date>=from&&b.date<=to&&b.status==='ok');
@@ -1312,6 +1361,7 @@ renderFooter();
 renderExpenses();
 renderTableBar();
 updateOrderTitle();
+showOpenShopModalIfNeeded();
 </script>
 </body>
 </html>
