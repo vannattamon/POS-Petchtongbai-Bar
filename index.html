@@ -620,8 +620,23 @@ function showPg(name,btn){
 // PRODUCTS
 document.getElementById('catbar').innerHTML=CATS.map(c=>`<button class="catbtn${c==='ทั้งหมด'?' on':''}" onclick="filterCat(this,'${c}')">${c}</button>`).join('');
 function filterCat(btn,cat){curCat=cat;document.querySelectorAll('.catbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderProducts();}
+// ยอดขายรวม (จำนวนชิ้น) ต่อสินค้า จากบิลที่ชำระแล้ว — ใช้เรียงหน้า "ทั้งหมด" ตามความขายดี
+function salesRank(){
+  const sold={};
+  bills.forEach(b=>{
+    if(b.status!=='ok')return;
+    (b.items||[]).forEach(it=>{sold[it.name]=(sold[it.name]||0)+(it.qty||0);});
+  });
+  return sold;
+}
 function renderProducts(){
-  const items=curCat==='ทั้งหมด'?PRODUCTS:PRODUCTS.filter(p=>p.cat===curCat);
+  let items;
+  if(curCat==='ทั้งหมด'){
+    const sold=salesRank();
+    // ขายดีสุดอยู่บน · ถ้ายอดเท่ากันหรือยังไม่เคยขาย คงลำดับเดิม
+    items=PRODUCTS.map((p,i)=>({p,i,n:sold[p.name]||0}))
+      .sort((a,b)=>b.n-a.n||a.i-b.i).map(x=>x.p);
+  }else items=PRODUCTS.filter(p=>p.cat===curCat);
   document.getElementById('pgrid').innerHTML=items.map(p=>`
     <div class="pcard${p.promo?' promo':''}" onclick="clickProd(${p.id})">
       ${p.promo?'<span class="promo-badge">โปร</span>':''}
