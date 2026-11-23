@@ -924,8 +924,26 @@ function deleteExpense(id){
   expenses=expenses.filter(e=>e.id!==id);
   save();renderExpenses();
 }
+// แลกเงินเข้าห้องน้ำ: ลูกค้าจ่าย (มักโอน) แล้วร้านจ่ายเหรียญออกจากลิ้นชัก
+// → ยอดขายสินค้านี้ทั้งวัน (บิลที่ไม่ยกเลิก) นับเป็นค่าใช้จ่ายหน้าร้านอัตโนมัติ สะสมเป็นยอดเดียว
+const TOILET_NAME='แลกเงินเข้าห้องน้ำ';
+function toiletExchange(d){
+  let amount=0,count=0;
+  bills.forEach(b=>{
+    if(b.date!==d||b.status!=='ok')return;
+    (b.items||[]).forEach(it=>{if(it.name===TOILET_NAME){amount+=(it.fp||0)*(it.qty||0);count++;}});
+  });
+  return {amount,count};
+}
+// ค่าใช้จ่ายทั้งหมดของวัน = ที่กรอกเอง + แลกเงินเข้าห้องน้ำ (ถ้ามี)
+function expensesForDay(d){
+  const list=expenses.filter(e=>e.date===d);
+  const t=toiletExchange(d);
+  if(t.amount>0)list.push({id:'toilet',auto:true,date:d,time:`${t.count} บิล`,desc:`🚻 ${TOILET_NAME} (สะสมจากการขาย)`,amount:t.amount});
+  return list;
+}
 function renderExpenses(){
-  const todayExp=expenses.filter(e=>e.date===bizDate());
+  const todayExp=expensesForDay(bizDate());
   const total=todayExp.reduce((s,e)=>s+e.amount,0);
   const el=document.getElementById('expense-list');
   const totalRow=document.getElementById('expense-total-row');
@@ -937,10 +955,10 @@ function renderExpenses(){
     <div class="expense-item">
       <div class="ei-info">
         <div class="ei-desc">${e.desc}</div>
-        <div class="ei-time" style="margin-top:2px">${e.unitPrice?`฿${e.unitPrice.toLocaleString()} × ${e.qty} หน่วย · `:''}${e.time}</div>
+        <div class="ei-time" style="margin-top:2px">${e.auto?`อัตโนมัติจากหน้าขาย · ${e.time}`:`${e.unitPrice?`฿${e.unitPrice.toLocaleString()} × ${e.qty} หน่วย · `:''}${e.time}`}</div>
       </div>
       <span class="ei-amount">฿${e.amount.toLocaleString()}</span>
-      <button class="ei-del" onclick="deleteExpense(${e.id})">🗑️</button>
+      ${e.auto?'<span class="ei-del" style="visibility:hidden">🗑️</span>':`<button class="ei-del" onclick="deleteExpense(${e.id})">🗑️</button>`}
     </div>`).join('');
   totalRow.style.display='flex';
   document.getElementById('expense-total-val').textContent='฿'+total.toLocaleString();
@@ -966,7 +984,7 @@ function renderCloseDay(){
   const todayBills=bills.filter(b=>b.date===d&&b.status==='ok');
   const cashSales=todayBills.filter(b=>b.method==='cash').reduce((s,b)=>s+b.total,0);
   const xferSales=todayBills.filter(b=>b.method==='transfer').reduce((s,b)=>s+b.total,0);
-  const todayExp=expenses.filter(e=>e.date===d);
+  const todayExp=expensesForDay(d);
   const totalExp=todayExp.reduce((s,e)=>s+e.amount,0);
   const opening=openingCash[d]||0;
   const floatRemain=opening-totalExp;
@@ -1158,7 +1176,7 @@ function sendCloseDayEmail(cashSales,xferSales,totalExp,opening,floatRemain,tota
   const closeTimeStr=shopDay&&shopDay.closeTime?shopDay.closeTime:nowTime();
   const SHEET_URL='https://script.google.com/macros/s/AKfycbwhvtEnhq7-LlzcBmT0R20YQP4JC5oAz-VOO5TKX1lQN8U0hz-upblYC0gCmJMPj9l9iw/exec';
 
-  const todayExp=expenses.filter(e=>e.date===d);
+  const todayExp=expensesForDay(d);
   const expLines=todayExp.length?todayExp.map(e=>`  - ${e.desc}: ฿${e.amount.toLocaleString()}`).join('\n'):'  ไม่มีค่าใช้จ่าย';
   const actual=parseInt(document.getElementById('actual-cash-input')?.value)||0;
   const diff=actual?actual-totalCash:null;
